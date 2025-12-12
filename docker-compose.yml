@@ -44,6 +44,7 @@ services:
       DEBUG: "true"
       LOG_LEVEL: INFO
       SEED_DATA: ${SEED_DATA:-true}
+      IMPORT_CSV: ${IMPORT_CSV:-false}
     ports:
       - "${API_EXTERNAL_PORT:-9876}:8000"
     volumes:

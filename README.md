@@ -57,7 +57,9 @@ The provided dataset (`data.csv`) contains employee feedback data with fields in
 This section explains key concepts related to the dataset to ensure you have a clear understanding of the terms used:
 
 ### 1. **Likert Scale**
+
 The Likert scale is a common way to measure attitudes or opinions. Respondents are typically asked to rate their agreement or disagreement with a statement on a scale (we use a range from 1 to 5). For example:
+
 - 1: Strongly Disagree
 - 2: Disagree
 - 3: Neutral
@@ -69,7 +71,9 @@ In this dataset, Likert scales are used to capture feedback on various aspects, 
 ---
 
 ### 2. **Favorability**
+
 Favorability measures the percentage of positive responses to a survey question. For example:
+
 - On a 5-point Likert scale:
   - Responses of 4 (Agree) and 5 (Strongly Agree) are considered favorable.
   - Responses of 3 (Neutral) are considered neutral.
@@ -80,13 +84,15 @@ Favorability helps identify areas where employees feel positively about their ex
 ---
 
 ### 3. **Net Promoter Score (NPS)**
-NPS is a metric used to measure loyalty and satisfaction, often represented as a single number between -100 and 100. It is based on responses to the question: 
+
+NPS is a metric used to measure loyalty and satisfaction, often represented as a single number between -100 and 100. It is based on responses to the question:
 *"On a scale from 0 to 10, how likely are you to recommend this company as a great place to work?"*
+
 - Respondents are categorized as:
   - **Promoters** (9-10): Loyal enthusiasts who will recommend the company.
   - **Passives** (7-8): Neutral respondents.
   - **Detractors** (0-6): Unhappy respondents who may discourage others.
-- **Calculation**:  
+- **Calculation**:
 
 ```
 NPS = (% Promoters) - (% Detractors)
@@ -97,7 +103,9 @@ NPS provides insight into overall employee sentiment in a scale from -100 (100% 
 ---
 
 ### 4. **Survey Conversion**
+
 Survey conversion refers to the percentage of employees who completed the survey out of those who were invited to participate. For example:
+
 - If 500 employees were invited and 350 completed the survey, the conversion rate is:
 
 ```
@@ -109,6 +117,7 @@ A high conversion rate indicates good participation and engagement with the surv
 ---
 
 ### How These Concepts Apply
+
 These metrics are essential to understanding the dataset and deriving actionable insights. As you work through the challenge, consider how Likert-scale responses, Favorability, NPS, and survey conversion reflect employee sentiment and help inform decision-making.
 
 ---
@@ -119,15 +128,15 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
 
 ### **Your Selected Tasks**
 
-- [ ] **Task 1**: Create a Basic Database
+- [X] **Task 1**: Create a Basic Database
 - [ ] **Task 2**: Create a Basic Dashboard
 - [ ] **Task 3**: Create a Test Suite
-- [ ] **Task 4**: Create a Docker Compose Setup
+- [X] **Task 4**: Create a Docker Compose Setup
 - [ ] **Task 5**: Exploratory Data Analysis
 - [ ] **Task 6**: Data Visualization - Company Level
 - [ ] **Task 7**: Data Visualization - Area Level
 - [ ] **Task 8**: Data Visualization - Employee Level
-- [ ] **Task 9**: Build a Simple API
+- [X] **Task 9**: Build a Simple API
 - [ ] **Task 10**: Sentiment Analysis
 - [ ] **Task 11**: Report Generation
 - [ ] **Task 12**: Creative Exploration
@@ -168,7 +177,6 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
   - Number of employees per department (**area**).
   - Average feedback scores.
   - eNPS distribution.
-
 - Include interactive elements like filtering by department (**area**) or position (**cargo**).
 - Ensure the dashboard is user-friendly and visually appealing.
 
@@ -240,7 +248,6 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
   - Overall employee satisfaction scores.
   - Company-wide eNPS scores.
   - Distribution of company tenure among all employees.
-
 - Ensure visualizations are clear, labeled, and easy to understand.
 - Explain what each visualization reveals about the company.
 
@@ -263,7 +270,6 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
   - Average feedback scores by department (**area**).
   - eNPS scores segmented by department.
   - Comparison of career expectations across different areas.
-
 - Include interactive elements such as filtering or hovering to display more information.
 - Ensure visualizations are clear, labeled, and easy to understand.
 - Explain what each visualization reveals about the different areas.
@@ -287,7 +293,6 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
   - An individual employee's feedback scores across different categories.
   - A profile visualization summarizing an employee's tenure, position, and feedback.
   - Comparison of an employee's scores to department or company averages.
-
 - Ensure privacy considerations are met (e.g., anonymize data if necessary).
 - Explain how these visualizations can be used for employee development or management.
 
@@ -373,7 +378,6 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
 - **Documentation**: Include any reports or visualizations you created.
 - **Instructions**: Provide clear instructions for setting up and running your project.
 - **Share you repository**: Provide the link to your repository as per the submission instructions provided.
-
 
 ## Let Your Creativity Flow!
 

@@ -19,5 +19,12 @@ if [ -d "/app/database/migrations" ]; then
     echo "Migrações concluídas!"
 fi
 
+# Importar dados do CSV se habilitado
+if [ "$IMPORT_CSV" = "true" ] && [ -f "/app/data.csv" ]; then
+    echo "Importando dados do CSV..."
+    python /app/scripts/import_csv.py /app/data.csv
+    echo "Importação do CSV concluída!"
+fi
+
 echo "Iniciando aplicação..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
