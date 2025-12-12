@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  # ===== DATABASE =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: tech_playground_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-tech_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-tech_password}
+      POSTGRES_DB: ${DB_NAME:-tech_playground}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/migrations:/docker-entrypoint-initdb.d/migrations
+    ports:
+      - "${DB_EXTERNAL_PORT:-9432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-tech_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ===== BACKEND API =====
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tech_playground_backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-tech_user}:${DB_PASSWORD:-tech_password}@postgres:5432/${DB_NAME:-tech_playground}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-tech_user}
+      DB_PASSWORD: ${DB_PASSWORD:-tech_password}
+      DB_NAME: ${DB_NAME:-tech_playground}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: "true"
+      LOG_LEVEL: INFO
+      SEED_DATA: ${SEED_DATA:-true}
+    ports:
+      - "${API_EXTERNAL_PORT:-9876}:8000"
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: /app/scripts/entrypoint.sh
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
