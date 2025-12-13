@@ -1,4 +1,21 @@
-# Python
+# ====================
+# DOCKERIGNORE - Backend
+# ====================
+# Excludes files from Docker build context to reduce image size and build time
+
+# ====================
+# VERSION CONTROL
+# ====================
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ====================
+# PYTHON
+# ====================
+
+# Byte-compiled / optimized
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,56 +25,124 @@ __pycache__/
 dist/
 build/
 *.egg
+.eggs/
 
-# Virtual Environments
+# Virtual Environments (not needed in container)
 venv/
 env/
 ENV/
 .venv
+env.bak/
+venv.bak/
 
-# IDE
+# ====================
+# TESTING & COVERAGE
+# ====================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+*.cover
+.hypothesis/
+coverage.xml
+nosetests.xml
+
+# ====================
+# IDE & EDITORS
+# ====================
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 *.swp
 *.swo
 *~
 .DS_Store
+*.iml
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-*.cover
-
-# Documentation
-README.md
+# ====================
+# DOCUMENTATION
+# ====================
 *.md
+!requirements.md
 docs/
+README*
 
-# Git
-.git/
-.gitignore
-.gitattributes
-
-# Docker
-Dockerfile
+# ====================
+# DOCKER
+# ====================
+Dockerfile*
+!Dockerfile
 .dockerignore
-docker-compose.yml
+docker-compose*.yml
 
-# Environment
-.env.example
-.env.local
-.env.*.local
+# ====================
+# ENVIRONMENT FILES
+# ====================
+.env
+.env.*
+!.env.example
+.envrc
 
-# Logs
+# ====================
+# LOGS & TEMP
+# ====================
 *.log
+*.log.*
 logs/
-
-# Temporary files
 *.tmp
 *.temp
+*.bak
 .cache/
 
-# OS
+# ====================
+# OS FILES
+# ====================
+.DS_Store
 Thumbs.db
+Desktop.ini
+.Trash-*
+.directory
+
+# ====================
+# STATIC FILES (backend doesn't need these)
+# ====================
+static/
+media/
+uploads/
+
+# ====================
+# LINTING & FORMATTING
+# ====================
+.ruff_cache/
+.mypy_cache/
+.pylint.d/
+.pytype/
+
+# ====================
+# DATABASE FILES
+# ====================
+*.db
+*.sqlite
+*.sqlite3
+data/
+*.csv
+!data.csv
+
+# ====================
+# SCRIPTS (if not needed in runtime)
+# ====================
+# Uncomment if scripts are only for local dev
+# scripts/
+# *.sh
+
+# ====================
+# KEEP ESSENTIAL FILES
+# ====================
+# Use ! to force include important files
+!requirements.txt
+!app/
+!tests/
+!scripts/entrypoint.sh
