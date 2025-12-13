@@ -343,8 +343,4 @@ class TestHierarquiaService:
         
         # Assert
         assert result == []
-
-
-class TestFuncionarioServiceFailures:
-    """Testes de casos de falha para FuncionarioService"""
     
