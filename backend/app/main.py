@@ -11,7 +11,7 @@ from datetime import datetime
 
 from app.config import settings
 from app.database.connection import DatabaseConnection
-from app.controllers import hierarquia_controller, funcionario_controller
+from app.routes import register_routes
 
 # Logging
 logging.basicConfig(
@@ -92,9 +92,8 @@ async def root():
         "health": "/health"
     }
 
-# Routers
-app.include_router(hierarquia_controller.router, prefix="/api/hierarquia", tags=["Hierarquia"])
-app.include_router(funcionario_controller.router, prefix="/api/funcionarios", tags=["Funcionários"])
+# Registra todas as rotas
+register_routes(app)
 
 if __name__ == "__main__":
     import uvicorn
