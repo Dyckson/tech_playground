@@ -270,7 +270,21 @@ def import_csv_data(csv_file_path):
                     tempo_id = get_or_create_lookup(cursor, 'tempo_empresa_catgo', 'nome_tempo_empresa', row.get('tempo_de_empresa', '').strip(), lookup_cache)
                     localidade_id = get_or_create_lookup(cursor, 'localidade', 'nome_localidade', row.get('localidade', '').strip(), lookup_cache)
                     
-                    # 4. Funcionário
+                    # 4. Funcionário - Verificar se já existe pelo email
+                    email = row.get('email', '').strip()
+                    email_corporativo = row.get('email_corporativo', '').strip()
+                    
+                    cursor.execute("""
+                        SELECT id_funcionario FROM funcionario 
+                        WHERE email = %s OR email_corporativo = %s
+                    """, (email, email_corporativo))
+                    
+                    existing_func = cursor.fetchone()
+                    if existing_func:
+                        funcionario_id = existing_func[0]
+                        print(f"  ⏭️  Funcionário {row.get('nome', '').strip()} já existe, pulando...")
+                        continue  # Pula para o próximo registro
+                    
                     funcionario_id = str(uuid4())
                     cursor.execute("""
                         INSERT INTO funcionario (
@@ -281,8 +295,8 @@ def import_csv_data(csv_file_path):
                     """, (
                         funcionario_id,
                         row.get('nome', '').strip(),
-                        row.get('email', '').strip(),
-                        row.get('email_corporativo', '').strip(),
+                        email,
+                        email_corporativo,
                         area_id, cargo_id, genero_id, geracao_id, tempo_id, localidade_id
                     ))
                     stats['funcionarios'] += 1

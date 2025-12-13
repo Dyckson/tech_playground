@@ -19,6 +19,7 @@ def get_funcionario_service():
     return FuncionarioService()
 
 
+@router.get("/{empresa_id}", response_model=FuncionarioPaginada)
 @router.get("/{empresa_id}/listar", response_model=FuncionarioPaginada)
 async def listar_funcionarios(
     empresa_id: UUID,

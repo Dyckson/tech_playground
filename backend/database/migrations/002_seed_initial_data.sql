@@ -5,7 +5,8 @@
 INSERT INTO empresa (nome_empresa, cnpj) VALUES
 ('TechCorp Brasil', '12.345.678/0001-90'),
 ('InnovaSoft Ltda', '98.765.432/0001-10'),
-('CloudServices XYZ', '11.222.333/0001-44');
+('CloudServices XYZ', '11.222.333/0001-44')
+ON CONFLICT (cnpj) DO NOTHING;
 
 -- ===== HIERARQUIA - TechCorp Brasil =====
 DO $$
@@ -170,21 +171,24 @@ INSERT INTO cargo (nome_cargo, nivel_hierarquico) VALUES
 ('Analista de RH', 'Pleno'),
 ('Coordenador', 'Coordenação'),
 ('Gerente', 'Gerência'),
-('Diretor', 'Diretoria');
+('Diretor', 'Diretoria')
+ON CONFLICT (nome_cargo) DO NOTHING;
 
 -- Gêneros
 INSERT INTO genero_catgo (nome_genero) VALUES
 ('Masculino'),
 ('Feminino'),
 ('Não-binário'),
-('Prefiro não informar');
+('Prefiro não informar')
+ON CONFLICT (nome_genero) DO NOTHING;
 
 -- Gerações
 INSERT INTO geracao_catgo (nome_geracao, faixa_etaria) VALUES
 ('Baby Boomer', '1946-1964'),
 ('Geração X', '1965-1980'),
 ('Millennials', '1981-1996'),
-('Geração Z', '1997-2012');
+('Geração Z', '1997-2012')
+ON CONFLICT (nome_geracao) DO NOTHING;
 
 -- Tempo de Empresa
 INSERT INTO tempo_empresa_catgo (nome_tempo_empresa, meses_min, meses_max) VALUES
@@ -193,7 +197,8 @@ INSERT INTO tempo_empresa_catgo (nome_tempo_empresa, meses_min, meses_max) VALUE
 ('1 a 2 anos', 12, 23),
 ('2 a 5 anos', 24, 59),
 ('5 a 10 anos', 60, 119),
-('Mais de 10 anos', 120, NULL);
+('Mais de 10 anos', 120, NULL)
+ON CONFLICT (nome_tempo_empresa) DO NOTHING;
 
 -- Localidades
 INSERT INTO localidade (nome_localidade, cidade, estado, tipo) VALUES
@@ -202,7 +207,8 @@ INSERT INTO localidade (nome_localidade, cidade, estado, tipo) VALUES
 ('Rio de Janeiro - Escritório', 'Rio de Janeiro', 'RJ', 'Escritório'),
 ('Belo Horizonte - Hub Tech', 'Belo Horizonte', 'MG', 'Escritório'),
 ('Remoto - Brasil', NULL, NULL, 'Remoto'),
-('Remoto - Internacional', NULL, NULL, 'Remoto');
+('Remoto - Internacional', NULL, NULL, 'Remoto')
+ON CONFLICT (nome_localidade) DO NOTHING;
 
 -- Dimensões de Avaliação
 INSERT INTO dimensao_avaliacao (nome_dimensao, descricao, tipo_escala, valor_min, valor_max, ordem_exibicao) VALUES
@@ -212,7 +218,8 @@ INSERT INTO dimensao_avaliacao (nome_dimensao, descricao, tipo_escala, valor_min
 ('Desenvolvimento Profissional', 'Oportunidades de crescimento e aprendizado', 'Likert', 1, 5, 4),
 ('Remuneração e Benefícios', 'Satisfação com pacote de remuneração total', 'Likert', 1, 5, 5),
 ('Equilíbrio Trabalho-Vida', 'Percepção sobre work-life balance', 'Likert', 1, 5, 6),
-('Expectativa de Permanência (eNPS)', 'Probabilidade de recomendar a empresa como lugar para trabalhar', 'NPS', 0, 10, 7);
+('Expectativa de Permanência (eNPS)', 'Probabilidade de recomendar a empresa como lugar para trabalhar', 'NPS', 0, 10, 7)
+ON CONFLICT (nome_dimensao) DO NOTHING;
 
 -- ===== FUNCIONÁRIOS DE EXEMPLO =====
 DO $$
