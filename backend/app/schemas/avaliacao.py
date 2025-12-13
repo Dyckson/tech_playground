@@ -1,10 +1,11 @@
 """
 Schemas de Avaliação e Dimensões
 """
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime, date
+
+from datetime import date, datetime
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 from .funcionario import FuncionarioResponse
 
@@ -12,7 +13,7 @@ from .funcionario import FuncionarioResponse
 class DimensaoRespostaBase(BaseModel):
     dimensao_avaliacao_id: UUID
     valor_resposta: int = Field(..., ge=0, le=10)
-    comentario: Optional[str] = None
+    comentario: str | None = None
 
 
 class DimensaoRespostaCreate(DimensaoRespostaBase):
@@ -22,10 +23,10 @@ class DimensaoRespostaCreate(DimensaoRespostaBase):
 class DimensaoRespostaResponse(DimensaoRespostaBase):
     id: UUID
     avaliacao_id: UUID
-    dimensao_nome: Optional[str] = None
-    dimensao_numero: Optional[int] = None
+    dimensao_nome: str | None = None
+    dimensao_numero: int | None = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -36,19 +37,20 @@ class AvaliacaoBase(BaseModel):
 
 
 class AvaliacaoCreate(AvaliacaoBase):
-    dimensoes: List[DimensaoRespostaCreate] = Field(..., min_length=7, max_length=7)
+    dimensoes: list[DimensaoRespostaCreate] = Field(..., min_length=7, max_length=7)
 
 
 class AvaliacaoResponse(AvaliacaoBase):
     id: UUID
-    enps_calculado: Optional[float] = None
+    enps_calculado: float | None = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 
 class AvaliacaoCompleta(AvaliacaoResponse):
     """Avaliação com todas as dimensões"""
-    dimensoes: List[DimensaoRespostaResponse]
-    funcionario: Optional[FuncionarioResponse] = None
+
+    dimensoes: list[DimensaoRespostaResponse]
+    funcionario: FuncionarioResponse | None = None

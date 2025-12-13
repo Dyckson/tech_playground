@@ -2,22 +2,23 @@
 Base Repository
 Classe base com métodos comuns para acesso a dados
 """
-from typing import Optional, List, Dict, Any, Tuple
-from psycopg2.extras import RealDictRow
+
 import logging
+from typing import Any
 
 from app.database.connection import DatabaseConnection
+
 
 logger = logging.getLogger(__name__)
 
 
 class BaseRepository:
     """Repositório base com operações CRUD genéricas"""
-    
+
     def __init__(self):
         self.db = DatabaseConnection
-    
-    def execute_query(self, query: str, params: tuple = None) -> List[Dict[str, Any]]:
+
+    def execute_query(self, query: str, params: tuple = None) -> list[dict[str, Any]]:
         """
         Executa query SELECT e retorna lista de dicionários
         """
@@ -27,8 +28,8 @@ class BaseRepository:
             results = cursor.fetchall()
             cursor.close()
             return [dict(row) for row in results]
-    
-    def execute_one(self, query: str, params: tuple = None) -> Optional[Dict[str, Any]]:
+
+    def execute_one(self, query: str, params: tuple = None) -> dict[str, Any] | None:
         """
         Executa query SELECT e retorna um único registro
         """
@@ -38,8 +39,8 @@ class BaseRepository:
             result = cursor.fetchone()
             cursor.close()
             return dict(result) if result else None
-    
-    def execute_insert(self, query: str, params: tuple = None) -> Optional[str]:
+
+    def execute_insert(self, query: str, params: tuple = None) -> str | None:
         """
         Executa INSERT e retorna o ID inserido
         """
@@ -50,12 +51,12 @@ class BaseRepository:
                 result = cursor.fetchone()
                 conn.commit()
                 cursor.close()
-                return result['id'] if result else None
+                return result["id"] if result else None
             except Exception as e:
                 conn.rollback()
                 logger.error(f"Erro no INSERT: {e}")
                 raise
-    
+
     def execute_update(self, query: str, params: tuple = None) -> int:
         """
         Executa UPDATE e retorna número de linhas afetadas
@@ -72,7 +73,7 @@ class BaseRepository:
                 conn.rollback()
                 logger.error(f"Erro no UPDATE: {e}")
                 raise
-    
+
     def execute_delete(self, query: str, params: tuple = None) -> int:
         """
         Executa DELETE e retorna número de linhas deletadas
@@ -89,7 +90,7 @@ class BaseRepository:
                 conn.rollback()
                 logger.error(f"Erro no DELETE: {e}")
                 raise
-    
+
     def execute_scalar(self, query: str, params: tuple = None) -> Any:
         """
         Executa query e retorna um único valor escalar
@@ -103,7 +104,7 @@ class BaseRepository:
             if result:
                 return list(result.values())[0] if isinstance(result, dict) else result[0]
             return None
-    
+
     def execute_count(self, table: str, where: str = "", params: tuple = None) -> int:
         """
         Conta registros em uma tabela
@@ -112,30 +113,30 @@ class BaseRepository:
         if where:
             query += f" WHERE {where}"
         return self.execute_scalar(query, params) or 0
-    
-    def build_pagination(self, page: int, page_size: int) -> Tuple[int, int]:
+
+    def build_pagination(self, page: int, page_size: int) -> tuple[int, int]:
         """
         Calcula LIMIT e OFFSET para paginação
         """
         offset = (page - 1) * page_size
         return page_size, offset
-    
-    def build_where_clause(self, filters: Dict[str, Any]) -> Tuple[str, tuple]:
+
+    def build_where_clause(self, filters: dict[str, Any]) -> tuple[str, tuple]:
         """
         Constrói cláusula WHERE dinamicamente
-        
+
         Args:
             filters: Dicionário com {campo: valor}
-        
+
         Returns:
             Tupla (where_clause, params)
         """
         if not filters:
             return "", ()
-        
+
         conditions = []
         params = []
-        
+
         for field, value in filters.items():
             if value is not None:
                 if isinstance(value, list):
@@ -145,6 +146,6 @@ class BaseRepository:
                 else:
                     conditions.append(f"{field} = %s")
                     params.append(value)
-        
+
         where_clause = " AND ".join(conditions) if conditions else ""
         return where_clause, tuple(params)

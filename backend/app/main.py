@@ -2,23 +2,24 @@
 Tech Playground API
 Sistema de análise de eNPS e feedback de funcionários
 """
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+
 import logging
 import sys
+from contextlib import asynccontextmanager
 from datetime import datetime
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database.connection import DatabaseConnection
 from app.routes import register_routes
 
+
 # Logging
-logging.basicConfig(
-    level=settings.LOG_LEVEL,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=settings.LOG_LEVEL, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 # Lifecycle
 @asynccontextmanager
@@ -30,14 +31,15 @@ async def lifespan(app: FastAPI):
         logger.info(f"📊 Database: {settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")
         logger.info(f"⚙️  Environment: {settings.ENVIRONMENT}")
     except Exception as e:
-        logger.error(f"❌ Erro ao iniciar: {str(e)}")
+        logger.error(f"❌ Erro ao iniciar: {e!s}")
         sys.exit(1)
-    
+
     yield
-    
+
     # SHUTDOWN
     DatabaseConnection.close_all()
     logger.info("✅ Aplicação finalizada")
+
 
 # FastAPI App
 app = FastAPI(
@@ -57,7 +59,7 @@ app = FastAPI(
     - **Insights**: Análise de comentários e tendências
     """,
     version=settings.API_VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS
@@ -69,6 +71,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Health Check
 @app.get("/health", tags=["Health"])
 async def health_check():
@@ -78,8 +81,9 @@ async def health_check():
         "environment": settings.ENVIRONMENT,
         "version": settings.API_VERSION,
         "database": settings.DB_NAME,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
+
 
 @app.get("/", tags=["Root"])
 async def root():
@@ -89,21 +93,22 @@ async def root():
         "version": settings.API_VERSION,
         "docs": "/docs",
         "redoc": "/redoc",
-        "health": "/health"
+        "health": "/health",
     }
+
 
 # Registra todas as rotas
 register_routes(app)
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     logger.info(f"🚀 Iniciando {settings.API_TITLE} v{settings.API_VERSION}")
-    
+
     uvicorn.run(
         app,
         host=settings.API_HOST,
         port=settings.API_PORT,
         workers=1 if settings.ENVIRONMENT == "development" else 4,
-        reload=settings.DEBUG
+        reload=settings.DEBUG,
     )

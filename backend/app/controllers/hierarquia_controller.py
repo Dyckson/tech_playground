@@ -2,17 +2,15 @@
 Hierarquia Controller
 Endpoints para estrutura organizacional
 """
-from fastapi import APIRouter, HTTPException, Query, Path, Depends
-from typing import List
-from uuid import UUID
-import logging
 
+import logging
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Path
+
+from app.schemas.schemas import ContagemPorArea, EmpresaResponse, HierarquiaCompleta
 from app.services.hierarquia_service import HierarquiaService
-from app.schemas.schemas import (
-    EmpresaResponse,
-    HierarquiaCompleta,
-    ContagemPorArea
-)
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -23,14 +21,8 @@ def get_hierarquia_service() -> HierarquiaService:
     return HierarquiaService()
 
 
-@router.get(
-    "/empresas",
-    response_model=List[EmpresaResponse],
-    summary="Listar todas as empresas"
-)
-async def listar_empresas(
-    service: HierarquiaService = Depends(get_hierarquia_service)
-):
+@router.get("/empresas", response_model=list[EmpresaResponse], summary="Listar todas as empresas")
+async def listar_empresas(service: HierarquiaService = Depends(get_hierarquia_service)):
     """Retorna lista de todas as empresas cadastradas"""
     try:
         return service.get_all_empresas()
@@ -39,14 +31,10 @@ async def listar_empresas(
         raise HTTPException(status_code=500, detail="Erro ao listar empresas")
 
 
-@router.get(
-    "/empresas/{empresa_id}",
-    response_model=EmpresaResponse,
-    summary="Buscar empresa por ID"
-)
+@router.get("/empresas/{empresa_id}", response_model=EmpresaResponse, summary="Buscar empresa por ID")
 async def get_empresa(
     empresa_id: UUID = Path(..., description="ID da empresa"),
-    service: HierarquiaService = Depends(get_hierarquia_service)
+    service: HierarquiaService = Depends(get_hierarquia_service),
 ):
     """Retorna dados de uma empresa específica"""
     try:
@@ -61,17 +49,14 @@ async def get_empresa(
         raise HTTPException(status_code=500, detail="Erro ao buscar empresa")
 
 
-@router.get(
-    "/empresas/{empresa_id}/arvore",
-    summary="Árvore hierárquica completa"
-)
+@router.get("/empresas/{empresa_id}/arvore", summary="Árvore hierárquica completa")
 async def get_arvore_hierarquica(
     empresa_id: UUID = Path(..., description="ID da empresa"),
-    service: HierarquiaService = Depends(get_hierarquia_service)
+    service: HierarquiaService = Depends(get_hierarquia_service),
 ):
     """
     Retorna estrutura hierárquica completa em formato de árvore
-    
+
     Estrutura:
     - Diretoria
       - Gerência
@@ -87,12 +72,12 @@ async def get_arvore_hierarquica(
 
 @router.get(
     "/empresas/{empresa_id}/areas",
-    response_model=List[HierarquiaCompleta],
-    summary="Listar todas as áreas com hierarquia"
+    response_model=list[HierarquiaCompleta],
+    summary="Listar todas as áreas com hierarquia",
 )
 async def listar_areas(
     empresa_id: UUID = Path(..., description="ID da empresa"),
-    service: HierarquiaService = Depends(get_hierarquia_service)
+    service: HierarquiaService = Depends(get_hierarquia_service),
 ):
     """Retorna todas as áreas da empresa com caminho hierárquico completo"""
     try:
@@ -103,13 +88,10 @@ async def listar_areas(
 
 
 @router.get(
-    "/areas/{area_id}/hierarquia",
-    response_model=HierarquiaCompleta,
-    summary="Hierarquia de uma área específica"
+    "/areas/{area_id}/hierarquia", response_model=HierarquiaCompleta, summary="Hierarquia de uma área específica"
 )
 async def get_hierarquia_area(
-    area_id: UUID = Path(..., description="ID da área"),
-    service: HierarquiaService = Depends(get_hierarquia_service)
+    area_id: UUID = Path(..., description="ID da área"), service: HierarquiaService = Depends(get_hierarquia_service)
 ):
     """Retorna caminho hierárquico completo de uma área"""
     try:
@@ -126,12 +108,12 @@ async def get_hierarquia_area(
 
 @router.get(
     "/empresas/{empresa_id}/funcionarios/contagem",
-    response_model=List[ContagemPorArea],
-    summary="Contagem de funcionários por área"
+    response_model=list[ContagemPorArea],
+    summary="Contagem de funcionários por área",
 )
 async def contagem_funcionarios(
     empresa_id: UUID = Path(..., description="ID da empresa"),
-    service: HierarquiaService = Depends(get_hierarquia_service)
+    service: HierarquiaService = Depends(get_hierarquia_service),
 ):
     """Retorna quantidade de funcionários ativos em cada área"""
     try:

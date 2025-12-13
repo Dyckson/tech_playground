@@ -2,10 +2,11 @@
 Schemas de Hierarquia Organizacional
 Empresa → Diretoria → Gerência → Coordenação → Área
 """
-from pydantic import BaseModel, Field
-from typing import Optional
+
 from datetime import datetime
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 class EmpresaBase(BaseModel):
@@ -19,7 +20,7 @@ class EmpresaCreate(EmpresaBase):
 class EmpresaResponse(EmpresaBase):
     id: UUID
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -54,6 +55,7 @@ class AreaDetalheResponse(BaseModel):
 
 class HierarquiaCompleta(BaseModel):
     """Hierarquia completa de uma área"""
+
     empresa: str
     diretoria: str
     gerencia: str

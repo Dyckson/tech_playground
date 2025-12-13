@@ -2,26 +2,27 @@
 Testes de integração com o banco de dados
 Testa conexões reais, transações, rollbacks e integridade dos dados
 """
-import pytest
+
 import psycopg2
+import pytest
 from psycopg2.extras import RealDictCursor
 
 
 class TestDatabaseConnection:
     """Testes de conexão com o banco de dados"""
-    
+
     def test_database_connection_success(self, db_connection):
         """Testa se a conexão com o banco está ativa"""
         assert db_connection is not None
         assert db_connection.closed == 0  # 0 = aberta
-    
+
     def test_database_can_execute_query(self, db_cursor):
         """Testa execução básica de query"""
         db_cursor.execute("SELECT 1 as test_value")
         result = db_cursor.fetchone()
         assert result is not None
-        assert result['test_value'] == 1
-    
+        assert result["test_value"] == 1
+
     def test_database_has_expected_tables(self, db_cursor):
         """Verifica se as tabelas principais existem"""
         db_cursor.execute("""
@@ -31,25 +32,25 @@ class TestDatabaseConnection:
             AND table_name IN ('empresa', 'funcionario', 'avaliacao', 'area_detalhe')
             ORDER BY table_name
         """)
-        tables = [row['table_name'] for row in db_cursor.fetchall()]
-        
-        assert 'area_detalhe' in tables
-        assert 'avaliacao' in tables
-        assert 'empresa' in tables
-        assert 'funcionario' in tables
+        tables = [row["table_name"] for row in db_cursor.fetchall()]
+
+        assert "area_detalhe" in tables
+        assert "avaliacao" in tables
+        assert "empresa" in tables
+        assert "funcionario" in tables
 
 
 class TestDatabaseTransactions:
     """Testes de transações e rollback"""
-    
+
     def test_transaction_rollback(self, db_connection):
         """Testa se rollback desfaz inserções"""
         cursor = db_connection.cursor(cursor_factory=RealDictCursor)
-        
+
         # Conta registros antes
         cursor.execute("SELECT COUNT(*) as count FROM empresa")
-        count_before = cursor.fetchone()['count']
-        
+        count_before = cursor.fetchone()["count"]
+
         # Tenta inserir (vai falhar por constraint ou será desfeito)
         try:
             cursor.execute("""
@@ -59,32 +60,32 @@ class TestDatabaseTransactions:
             db_connection.rollback()
         except Exception:
             db_connection.rollback()
-        
+
         # Conta registros depois
         cursor.execute("SELECT COUNT(*) as count FROM empresa")
-        count_after = cursor.fetchone()['count']
-        
+        count_after = cursor.fetchone()["count"]
+
         cursor.close()
-        
+
         # Deve ser igual (rollback funcionou)
         assert count_after == count_before
-    
+
     def test_transaction_isolation(self, db_transaction):
         """Testa isolamento de transação"""
         cursor = db_transaction.cursor(cursor_factory=RealDictCursor)
-        
+
         # Lê dados
         cursor.execute("SELECT COUNT(*) as count FROM funcionario")
-        initial_count = cursor.fetchone()['count']
-        
+        initial_count = cursor.fetchone()["count"]
+
         assert initial_count > 0
-        
+
         cursor.close()
 
 
 class TestDatabaseConstraints:
     """Testes de constraints e integridade referencial"""
-    
+
     def test_funcionario_requires_area_detalhe(self, db_cursor):
         """Verifica constraint de foreign key funcionario -> area_detalhe"""
         # Tenta inserir funcionário com area_detalhe inexistente
@@ -105,16 +106,17 @@ class TestDatabaseConstraints:
                     '00000000-0000-0000-0000-000000000000'::uuid
                 )
             """)
-    
+
     def test_email_unique_constraint(self, db_cursor):
         """Verifica constraint UNIQUE no email"""
         # Busca um email existente
         db_cursor.execute("SELECT email FROM funcionario LIMIT 1")
         existing = db_cursor.fetchone()
-        
+
         if existing:
             with pytest.raises(psycopg2.IntegrityError):
-                db_cursor.execute("""
+                db_cursor.execute(
+                    """
                     INSERT INTO funcionario (
                         nome_funcionario, email, id_area_detalhe,
                         id_cargo, id_genero_catgo, id_geracao_catgo,
@@ -127,12 +129,14 @@ class TestDatabaseConstraints:
                         id_geracao_catgo, id_tempo_empresa_catgo, id_localidade
                     FROM funcionario 
                     LIMIT 1
-                """, (existing['email'],))
+                """,
+                    (existing["email"],),
+                )
 
 
 class TestDatabaseQueries:
     """Testes de queries complexas"""
-    
+
     def test_query_funcionarios_with_joins(self, db_cursor):
         """Testa query com múltiplos JOINs"""
         db_cursor.execute("""
@@ -149,17 +153,17 @@ class TestDatabaseQueries:
             INNER JOIN localidade l ON f.id_localidade = l.id_localidade
             LIMIT 5
         """)
-        
+
         results = db_cursor.fetchall()
-        
+
         assert len(results) > 0
         for row in results:
-            assert row['id_funcionario'] is not None
-            assert row['nome_funcionario'] is not None
-            assert row['nome_cargo'] is not None
-            assert row['nome_area_detalhe'] is not None
-            assert row['nome_localidade'] is not None
-    
+            assert row["id_funcionario"] is not None
+            assert row["nome_funcionario"] is not None
+            assert row["nome_cargo"] is not None
+            assert row["nome_area_detalhe"] is not None
+            assert row["nome_localidade"] is not None
+
     def test_query_hierarquia_completa(self, db_cursor):
         """Testa query de hierarquia organizacional"""
         db_cursor.execute("""
@@ -180,16 +184,16 @@ class TestDatabaseQueries:
                      c.nome_coordenacao, ad.nome_area_detalhe
             LIMIT 10
         """)
-        
+
         results = db_cursor.fetchall()
-        
+
         assert len(results) > 0
         for row in results:
-            assert row['nome_empresa'] is not None
-            assert row['nome_diretoria'] is not None
-            assert row['nome_gerencia'] is not None
-            assert row['total_funcionarios'] >= 0
-    
+            assert row["nome_empresa"] is not None
+            assert row["nome_diretoria"] is not None
+            assert row["nome_gerencia"] is not None
+            assert row["total_funcionarios"] >= 0
+
     def test_query_agregacao_por_cargo(self, db_cursor):
         """Testa query de agregação por cargo"""
         db_cursor.execute("""
@@ -202,10 +206,10 @@ class TestDatabaseQueries:
             ORDER BY total DESC
             LIMIT 5
         """)
-        
+
         results = db_cursor.fetchall()
-        
+
         assert len(results) > 0
         for row in results:
-            assert row['nome_cargo'] is not None
-            assert row['total'] > 0
+            assert row["nome_cargo"] is not None
+            assert row["total"] > 0

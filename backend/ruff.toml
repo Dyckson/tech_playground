@@ -1,0 +1,84 @@
+# Configuração do Ruff - Linter e Formatter Python
+# Documentação: https://docs.astral.sh/ruff/
+
+# Diretórios a serem analisados
+target-version = "py311"
+line-length = 120
+indent-width = 4
+
+# Arquivos/diretórios a ignorar
+extend-exclude = [
+    "__pycache__",
+    "*.pyc",
+    ".pytest_cache",
+    ".venv",
+    "venv",
+    "htmlcov",
+    "*.egg-info",
+    ".git",
+]
+
+[lint]
+# Regras habilitadas (https://docs.astral.sh/ruff/rules/)
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort (organização de imports)
+    "N",     # pep8-naming
+    "UP",    # pyupgrade (modernização de código)
+    "B",     # flake8-bugbear (bugs comuns)
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+    "RET",   # flake8-return
+    "ARG",   # flake8-unused-arguments
+    "PL",    # pylint
+    "RUF",   # regras específicas do Ruff
+]
+
+# Regras ignoradas (personalize conforme necessário)
+ignore = [
+    "E501",    # line-too-long (já configurado no line-length)
+    "B008",    # function-call-in-default-argument (comum em FastAPI Depends)
+    "ARG001",  # unused-function-argument (comum em dependency injection)
+    "ARG002",  # unused-method-argument
+    "PLR0913", # too-many-arguments (comum em APIs)
+    "RET504",  # unnecessary-assign (às vezes preferível para legibilidade)
+]
+
+# Permitir auto-fix automático
+fixable = ["ALL"]
+unfixable = []
+
+# Permitir imports não utilizados em __init__.py
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/**/*.py" = ["PLR2004", "S101", "ARG001", "ARG002"]  # Permitir magic numbers, asserts e args não usados em testes
+
+[lint.isort]
+# Configuração de organização de imports
+known-first-party = ["app"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+lines-after-imports = 2
+
+[lint.mccabe]
+# Complexidade ciclomática máxima
+max-complexity = 10
+
+[lint.pylint]
+# Configurações do pylint
+max-args = 8
+max-branches = 15
+max-returns = 6
+max-statements = 50
+
+[format]
+# Configuração do formatador (substitui Black)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Formatação de strings
+docstring-code-format = true
+docstring-code-line-length = 80

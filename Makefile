@@ -55,6 +55,30 @@ test-cov: ## Executa testes com cobertura de código
 	docker exec -it tech_playground_backend pytest tests/ --cov=app --cov-report=html --cov-report=term-missing:skip-covered
 	@echo "$(GREEN)✅ Relatório gerado em backend/htmlcov/index.html$(NC)"
 
+# ==================== CODE QUALITY ====================
+
+lint: ## Verifica qualidade do código com Ruff
+	@echo "$(BLUE)🔍 Analisando código...$(NC)"
+	docker exec -it tech_playground_backend ruff check app/ tests/
+	@echo "$(GREEN)✅ Análise concluída!$(NC)"
+
+lint-fix: ## Corrige automaticamente problemas de código
+	@echo "$(BLUE)🔧 Corrigindo código...$(NC)"
+	docker exec -it tech_playground_backend ruff check --fix app/ tests/
+	@echo "$(GREEN)✅ Correções aplicadas!$(NC)"
+
+format: ## Formata o código seguindo padrões
+	@echo "$(BLUE)✨ Formatando código...$(NC)"
+	docker exec -it tech_playground_backend ruff format app/ tests/
+	@echo "$(GREEN)✅ Código formatado!$(NC)"
+
+format-check: ## Verifica formatação sem modificar
+	@echo "$(BLUE)📋 Verificando formatação...$(NC)"
+	docker exec -it tech_playground_backend ruff format --check app/ tests/
+
+quality: lint format ## Executa lint + format (full quality check)
+	@echo "$(GREEN)✅ Verificação completa de qualidade concluída!$(NC)"
+
 # ==================== DEFAULT ====================
 
 .DEFAULT_GOAL := help

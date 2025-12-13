@@ -1,17 +1,18 @@
 """
 Schemas de Funcionário
 """
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+
 from datetime import datetime
 from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 class FuncionarioBase(BaseModel):
     nome: str = Field(..., min_length=1, max_length=255)
     email: EmailStr
-    email_corporativo: Optional[EmailStr] = None
-    funcao: Optional[str] = Field(None, description="profissional ou gestor")
+    email_corporativo: EmailStr | None = None
+    funcao: str | None = Field(None, description="profissional ou gestor")
 
 
 class FuncionarioCreate(FuncionarioBase):
@@ -35,23 +36,24 @@ class FuncionarioResponse(FuncionarioBase):
     localidade_id: UUID
     ativo: bool
     created_at: datetime
-    
+
     # Dados expandidos (joins)
-    cargo_nome: Optional[str] = None
-    area_nome: Optional[str] = None
-    localidade_nome: Optional[str] = None
-    genero_nome: Optional[str] = None
-    geracao_nome: Optional[str] = None
-    tempo_empresa_nome: Optional[str] = None
-    
+    cargo_nome: str | None = None
+    area_nome: str | None = None
+    localidade_nome: str | None = None
+    genero_nome: str | None = None
+    geracao_nome: str | None = None
+    tempo_empresa_nome: str | None = None
+
     class Config:
         from_attributes = True
 
 
 class FuncionarioPaginada(BaseModel):
     """Resposta paginada de funcionários"""
+
     total: int
     page: int
     page_size: int
     total_pages: int
-    items: List[FuncionarioResponse]
+    items: list[FuncionarioResponse]

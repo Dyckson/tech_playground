@@ -2,12 +2,14 @@
 Fixtures para testes de integração
 Usa conexões reais com o banco de dados e cliente HTTP real
 """
-import pytest
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from fastapi.testclient import TestClient
-from typing import Generator
+
 import os
+from collections.abc import Generator
+
+import psycopg2
+import pytest
+from fastapi.testclient import TestClient
+from psycopg2.extras import RealDictCursor
 
 
 @pytest.fixture(scope="session")
@@ -53,6 +55,7 @@ def api_client() -> TestClient:
     Usa o app FastAPI real com conexões reais ao banco
     """
     from app.main import app
+
     return TestClient(app)
 
 
@@ -77,7 +80,7 @@ def empresa_id_teste(db_connection) -> str:
     result = cursor.fetchone()
     cursor.close()
     if result:
-        return str(result['id_empresa'])
+        return str(result["id_empresa"])
     return None
 
 
@@ -91,5 +94,5 @@ def funcionario_id_teste(db_connection) -> str:
     result = cursor.fetchone()
     cursor.close()
     if result:
-        return str(result['id_funcionario'])
+        return str(result["id_funcionario"])
     return None

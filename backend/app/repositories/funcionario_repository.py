@@ -1,34 +1,34 @@
 """
 Funcionário Repository
 """
-from typing import List, Dict, Optional, Tuple
+
 from uuid import UUID
+
 from app.repositories.base_repository import BaseRepository
 
 
 class FuncionarioRepository(BaseRepository):
-    
     def get_funcionarios_paginado(
         self,
-        empresa_id: Optional[UUID],
+        empresa_id: UUID | None,
         page: int,
         page_size: int,
-        areas: Optional[List[UUID]] = None,
-        cargos: Optional[List[UUID]] = None,
-        localidades: Optional[List[UUID]] = None
-    ) -> Tuple[List[Dict], int]:
+        areas: list[UUID] | None = None,
+        cargos: list[UUID] | None = None,
+        localidades: list[UUID] | None = None,
+    ) -> tuple[list[dict], int]:
         """Retorna funcionários com paginação e filtros"""
-        
+
         params_list = []
         empresa_filter = ""
         area_filter = ""
         cargo_filter = ""
         localidade_filter = ""
-        
+
         if empresa_id:
             empresa_filter = " AND d.id_empresa = %s"
             params_list.append(str(empresa_id))
-        
+
         if areas:
             area_filter = " AND f.id_area_detalhe IN (" + ",".join(["%s"] * len(areas)) + ")"
             params_list.extend([str(a) for a in areas])
@@ -38,7 +38,7 @@ class FuncionarioRepository(BaseRepository):
         if localidades:
             localidade_filter = " AND f.id_localidade IN (" + ",".join(["%s"] * len(localidades)) + ")"
             params_list.extend([str(l) for l in localidades])
-        
+
         count_query = f"""
             SELECT COUNT(*)
             FROM funcionario f
@@ -48,12 +48,12 @@ class FuncionarioRepository(BaseRepository):
             JOIN diretoria d ON d.id_diretoria = g.id_diretoria
             WHERE f.ativo = true{empresa_filter}{area_filter}{cargo_filter}{localidade_filter}
         """
-        
+
         total = self.execute_scalar(count_query, tuple(params_list))
-        
+
         limit, offset = self.build_pagination(page, page_size)
         params_list.extend([limit, offset])
-        
+
         query = f"""
             SELECT 
                 f.id_funcionario as id,
@@ -90,32 +90,32 @@ class FuncionarioRepository(BaseRepository):
             ORDER BY f.nome_funcionario
             LIMIT %s OFFSET %s
         """
-        
+
         results = self.execute_query(query, tuple(params_list))
         return results, total
-    
+
     def buscar_funcionarios(
         self,
-        empresa_id: Optional[UUID],
+        empresa_id: UUID | None,
         termo_busca: str,
         page: int,
         page_size: int,
-        areas: Optional[List[UUID]] = None,
-        cargos: Optional[List[UUID]] = None,
-        localidades: Optional[List[UUID]] = None
-    ) -> Tuple[List[Dict], int]:
+        areas: list[UUID] | None = None,
+        cargos: list[UUID] | None = None,
+        localidades: list[UUID] | None = None,
+    ) -> tuple[list[dict], int]:
         """Busca funcionários por nome ou email"""
-        
+
         params_list = []
         empresa_filter = ""
         area_filter = ""
         cargo_filter = ""
         localidade_filter = ""
-        
+
         if empresa_id:
             empresa_filter = " AND d.id_empresa = %s"
             params_list.append(str(empresa_id))
-        
+
         if areas:
             area_filter = " AND f.id_area_detalhe IN (" + ",".join(["%s"] * len(areas)) + ")"
             params_list.extend([str(a) for a in areas])
@@ -125,11 +125,11 @@ class FuncionarioRepository(BaseRepository):
         if localidades:
             localidade_filter = " AND f.id_localidade IN (" + ",".join(["%s"] * len(localidades)) + ")"
             params_list.extend([str(l) for l in localidades])
-        
+
         search_pattern = f"%{termo_busca}%"
         params_list.append(search_pattern)
         params_list.append(search_pattern)
-        
+
         count_query = f"""
             SELECT COUNT(*)
             FROM funcionario f
@@ -140,12 +140,12 @@ class FuncionarioRepository(BaseRepository):
             WHERE f.ativo = true{empresa_filter}{area_filter}{cargo_filter}{localidade_filter}
             AND (f.nome_funcionario ILIKE %s OR f.email ILIKE %s)
         """
-        
+
         total = self.execute_scalar(count_query, tuple(params_list))
-        
+
         limit, offset = self.build_pagination(page, page_size)
         params_list.extend([limit, offset])
-        
+
         query = f"""
             SELECT 
                 f.id_funcionario as id,
@@ -183,11 +183,11 @@ class FuncionarioRepository(BaseRepository):
             ORDER BY f.nome_funcionario
             LIMIT %s OFFSET %s
         """
-        
+
         results = self.execute_query(query, tuple(params_list))
         return results, total
-    
-    def get_funcionario_by_id(self, funcionario_id: UUID) -> Optional[Dict]:
+
+    def get_funcionario_by_id(self, funcionario_id: UUID) -> dict | None:
         """Busca funcionário por ID"""
         query = """
             SELECT 
@@ -224,8 +224,8 @@ class FuncionarioRepository(BaseRepository):
             WHERE f.id_funcionario = %s
         """
         return self.execute_one(query, (str(funcionario_id),))
-    
-    def get_areas_unicas(self, empresa_id: Optional[UUID]) -> List[Dict]:
+
+    def get_areas_unicas(self, empresa_id: UUID | None) -> list[dict]:
         """Retorna áreas únicas da empresa"""
         if empresa_id:
             query = """
@@ -240,8 +240,7 @@ class FuncionarioRepository(BaseRepository):
                 ORDER BY a.nome_area_detalhe
             """
             return self.execute_query(query, (str(empresa_id),))
-        else:
-            query = """
+        query = """
                 SELECT DISTINCT
                     a.id_area_detalhe as id,
                     a.nome_area_detalhe as nome
@@ -249,9 +248,9 @@ class FuncionarioRepository(BaseRepository):
                 WHERE a.ativo = true
                 ORDER BY a.nome_area_detalhe
             """
-            return self.execute_query(query)
-    
-    def get_cargos_unicos(self, empresa_id: Optional[UUID]) -> List[Dict]:
+        return self.execute_query(query)
+
+    def get_cargos_unicos(self, empresa_id: UUID | None) -> list[dict]:
         """Retorna cargos únicos usados na empresa"""
         if empresa_id:
             query = """
@@ -268,17 +267,16 @@ class FuncionarioRepository(BaseRepository):
                 ORDER BY c.nome_cargo
             """
             return self.execute_query(query, (str(empresa_id),))
-        else:
-            query = """
+        query = """
                 SELECT DISTINCT
                     c.id_cargo as id,
                     c.nome_cargo as nome
                 FROM cargo c
                 ORDER BY c.nome_cargo
             """
-            return self.execute_query(query)
-    
-    def get_localidades_unicas(self, empresa_id: Optional[UUID]) -> List[Dict]:
+        return self.execute_query(query)
+
+    def get_localidades_unicas(self, empresa_id: UUID | None) -> list[dict]:
         """Retorna localidades únicas usadas na empresa"""
         if empresa_id:
             query = """
@@ -295,17 +293,16 @@ class FuncionarioRepository(BaseRepository):
                 ORDER BY l.nome_localidade
             """
             return self.execute_query(query, (str(empresa_id),))
-        else:
-            query = """
+        query = """
                 SELECT DISTINCT
                     l.id_localidade as id,
                     l.nome_localidade as nome
                 FROM localidade l
                 ORDER BY l.nome_localidade
             """
-            return self.execute_query(query)
-    
-    def criar_funcionario(self, dados: Dict) -> str:
+        return self.execute_query(query)
+
+    def criar_funcionario(self, dados: dict) -> str:
         """Cria novo funcionário"""
         query = """
             INSERT INTO funcionario (
@@ -319,15 +316,15 @@ class FuncionarioRepository(BaseRepository):
             RETURNING id_funcionario as id
         """
         params = (
-            dados['nome'],
-            dados['email'],
-            dados.get('email_corporativo'),
-            dados.get('funcao'),
-            str(dados['area_detalhe_id']),
-            str(dados['cargo_id']),
-            str(dados['genero_id']),
-            str(dados['geracao_id']),
-            str(dados['tempo_empresa_id']),
-            str(dados['localidade_id'])
+            dados["nome"],
+            dados["email"],
+            dados.get("email_corporativo"),
+            dados.get("funcao"),
+            str(dados["area_detalhe_id"]),
+            str(dados["cargo_id"]),
+            str(dados["genero_id"]),
+            str(dados["geracao_id"]),
+            str(dados["tempo_empresa_id"]),
+            str(dados["localidade_id"]),
         )
         return self.execute_insert(query, params)

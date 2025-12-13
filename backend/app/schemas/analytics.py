@@ -1,14 +1,16 @@
 """
 Schemas de Analytics e eNPS
 """
-from pydantic import BaseModel, Field
-from typing import Optional, List
+
 from datetime import date
 from uuid import UUID
+
+from pydantic import BaseModel, Field
 
 
 class EnpsGeral(BaseModel):
     """eNPS geral da empresa"""
+
     enps: float = Field(..., ge=-100, le=100)
     promotores: int
     promotores_pct: float
@@ -21,8 +23,9 @@ class EnpsGeral(BaseModel):
 
 class EnpsPorSegmento(BaseModel):
     """eNPS segmentado (por área ou cargo)"""
+
     segmento: str
-    segmento_id: Optional[UUID] = None
+    segmento_id: UUID | None = None
     enps: float
     promotores: int
     passivos: int
@@ -32,16 +35,19 @@ class EnpsPorSegmento(BaseModel):
 
 class EnpsPorArea(EnpsPorSegmento):
     """eNPS por área"""
+
     pass
 
 
 class EnpsPorCargo(EnpsPorSegmento):
     """eNPS por cargo"""
+
     pass
 
 
 class FavorabilidadeDimensao(BaseModel):
     """Favorabilidade de uma dimensão"""
+
     dimensao: str
     dimensao_id: UUID
     favoravel: int
@@ -53,6 +59,7 @@ class FavorabilidadeDimensao(BaseModel):
 
 class FavorabilidadePorSegmento(BaseModel):
     """Favorabilidade segmentada"""
+
     segmento: str
     dimensao: str
     favorabilidade_pct: float
@@ -62,18 +69,20 @@ class FavorabilidadePorSegmento(BaseModel):
 
 class InsightBaixoEnps(BaseModel):
     """Insights de funcionários com baixo eNPS"""
+
     funcionario_id: UUID
     funcionario_nome: str
     cargo: str
     area: str
     enps: int
-    comentario_enps: Optional[str] = None
+    comentario_enps: str | None = None
     data_avaliacao: date
-    dimensoes_baixas: List[str] = Field(default_factory=list, description="Dimensões com score <= 2")
+    dimensoes_baixas: list[str] = Field(default_factory=list, description="Dimensões com score <= 2")
 
 
 class TendenciaEnps(BaseModel):
     """Tendência temporal de eNPS"""
+
     periodo: str  # YYYY-MM
     enps: float
     total_avaliacoes: int

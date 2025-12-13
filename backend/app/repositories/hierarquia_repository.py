@@ -2,15 +2,16 @@
 Hierarquia Repository
 Acesso a dados da estrutura organizacional
 """
-from typing import List, Dict, Optional
+
 from uuid import UUID
+
 from app.repositories.base_repository import BaseRepository
 
 
 class HierarquiaRepository(BaseRepository):
     """Repositório para consultas de hierarquia organizacional"""
-    
-    def get_all_empresas(self) -> List[Dict]:
+
+    def get_all_empresas(self) -> list[dict]:
         """Retorna todas as empresas"""
         query = """
             SELECT id_empresa as id, nome_empresa as nome, created_at
@@ -19,8 +20,8 @@ class HierarquiaRepository(BaseRepository):
             ORDER BY nome_empresa
         """
         return self.execute_query(query)
-    
-    def get_empresa_by_id(self, empresa_id: UUID) -> Optional[Dict]:
+
+    def get_empresa_by_id(self, empresa_id: UUID) -> dict | None:
         """Busca empresa por ID"""
         query = """
             SELECT id_empresa as id, nome_empresa as nome, created_at
@@ -28,8 +29,8 @@ class HierarquiaRepository(BaseRepository):
             WHERE id_empresa = %s AND ativo = true
         """
         return self.execute_one(query, (str(empresa_id),))
-    
-    def get_arvore_hierarquica(self, empresa_id: UUID) -> List[Dict]:
+
+    def get_arvore_hierarquica(self, empresa_id: UUID) -> list[dict]:
         """
         Retorna árvore hierárquica completa de uma empresa
         empresa -> diretoria -> gerencia -> coordenacao -> area
@@ -55,8 +56,8 @@ class HierarquiaRepository(BaseRepository):
             ORDER BY d.nome_diretoria, g.nome_gerencia, c.nome_coordenacao, a.nome_area_detalhe
         """
         return self.execute_query(query, (str(empresa_id),))
-    
-    def get_areas_by_empresa(self, empresa_id: UUID) -> List[Dict]:
+
+    def get_areas_by_empresa(self, empresa_id: UUID) -> list[dict]:
         """Retorna todas as áreas de uma empresa com hierarquia completa"""
         query = """
             SELECT 
@@ -80,8 +81,8 @@ class HierarquiaRepository(BaseRepository):
             ORDER BY a.nome_area_detalhe
         """
         return self.execute_query(query, (str(empresa_id),))
-    
-    def get_area_hierarquia(self, area_id: UUID) -> Optional[Dict]:
+
+    def get_area_hierarquia(self, area_id: UUID) -> dict | None:
         """Retorna hierarquia completa de uma área específica"""
         query = """
             SELECT 
@@ -103,8 +104,8 @@ class HierarquiaRepository(BaseRepository):
             WHERE a.id_area_detalhe = %s
         """
         return self.execute_one(query, (str(area_id),))
-    
-    def get_diretorias_by_empresa(self, empresa_id: UUID) -> List[Dict]:
+
+    def get_diretorias_by_empresa(self, empresa_id: UUID) -> list[dict]:
         """Retorna todas as diretorias de uma empresa"""
         query = """
             SELECT id_diretoria as id, nome_diretoria as nome, id_empresa as empresa_id, created_at
@@ -113,8 +114,8 @@ class HierarquiaRepository(BaseRepository):
             ORDER BY nome_diretoria
         """
         return self.execute_query(query, (str(empresa_id),))
-    
-    def get_gerencias_by_diretoria(self, diretoria_id: UUID) -> List[Dict]:
+
+    def get_gerencias_by_diretoria(self, diretoria_id: UUID) -> list[dict]:
         """Retorna todas as gerências de uma diretoria"""
         query = """
             SELECT id_gerencia as id, nome_gerencia as nome, id_diretoria as diretoria_id, created_at
@@ -123,8 +124,8 @@ class HierarquiaRepository(BaseRepository):
             ORDER BY nome_gerencia
         """
         return self.execute_query(query, (str(diretoria_id),))
-    
-    def get_coordenacoes_by_gerencia(self, gerencia_id: UUID) -> List[Dict]:
+
+    def get_coordenacoes_by_gerencia(self, gerencia_id: UUID) -> list[dict]:
         """Retorna todas as coordenações de uma gerência"""
         query = """
             SELECT id_coordenacao as id, nome_coordenacao as nome, id_gerencia as gerencia_id, created_at
@@ -133,8 +134,8 @@ class HierarquiaRepository(BaseRepository):
             ORDER BY nome_coordenacao
         """
         return self.execute_query(query, (str(gerencia_id),))
-    
-    def count_funcionarios_by_area(self, empresa_id: UUID) -> List[Dict]:
+
+    def count_funcionarios_by_area(self, empresa_id: UUID) -> list[dict]:
         """Conta funcionários por área"""
         query = """
             SELECT 
