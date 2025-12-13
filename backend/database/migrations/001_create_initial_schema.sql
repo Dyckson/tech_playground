@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ===== HIERARQUIA (5 tabelas) =====
 
 -- Empresa (raiz da hierarquia)
-CREATE TABLE empresa (
+CREATE TABLE IF NOT EXISTS empresa (
     id_empresa UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_empresa VARCHAR(255) NOT NULL UNIQUE,
     cnpj VARCHAR(20),
@@ -18,7 +18,7 @@ CREATE TABLE empresa (
 );
 
 -- Diretoria
-CREATE TABLE diretoria (
+CREATE TABLE IF NOT EXISTS diretoria (
     id_diretoria UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_empresa UUID NOT NULL REFERENCES empresa(id_empresa) ON DELETE CASCADE,
     nome_diretoria VARCHAR(255) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE diretoria (
 );
 
 -- Gerência
-CREATE TABLE gerencia (
+CREATE TABLE IF NOT EXISTS gerencia (
     id_gerencia UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_diretoria UUID NOT NULL REFERENCES diretoria(id_diretoria) ON DELETE CASCADE,
     nome_gerencia VARCHAR(255) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE gerencia (
 );
 
 -- Coordenação
-CREATE TABLE coordenacao (
+CREATE TABLE IF NOT EXISTS coordenacao (
     id_coordenacao UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_gerencia UUID NOT NULL REFERENCES gerencia(id_gerencia) ON DELETE CASCADE,
     nome_coordenacao VARCHAR(255) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE coordenacao (
 );
 
 -- Área Detalhe
-CREATE TABLE area_detalhe (
+CREATE TABLE IF NOT EXISTS area_detalhe (
     id_area_detalhe UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_coordenacao UUID NOT NULL REFERENCES coordenacao(id_coordenacao) ON DELETE CASCADE,
     nome_area_detalhe VARCHAR(255) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE area_detalhe (
 -- ===== LOOKUPS/CATEGORIAS (6 tabelas) =====
 
 -- Cargo
-CREATE TABLE cargo (
+CREATE TABLE IF NOT EXISTS cargo (
     id_cargo UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_cargo VARCHAR(255) NOT NULL UNIQUE,
     nivel_hierarquico VARCHAR(50),
@@ -89,14 +89,14 @@ CREATE TABLE cargo (
 );
 
 -- Gênero (Categoria)
-CREATE TABLE genero_catgo (
+CREATE TABLE IF NOT EXISTS genero_catgo (
     id_genero_catgo UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_genero VARCHAR(50) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Geração (Categoria)
-CREATE TABLE geracao_catgo (
+CREATE TABLE IF NOT EXISTS geracao_catgo (
     id_geracao_catgo UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_geracao VARCHAR(50) NOT NULL UNIQUE,
     faixa_etaria VARCHAR(50),
@@ -104,7 +104,7 @@ CREATE TABLE geracao_catgo (
 );
 
 -- Tempo de Empresa (Categoria)
-CREATE TABLE tempo_empresa_catgo (
+CREATE TABLE IF NOT EXISTS tempo_empresa_catgo (
     id_tempo_empresa_catgo UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_tempo_empresa VARCHAR(100) NOT NULL UNIQUE,
     meses_min INTEGER,
@@ -113,7 +113,7 @@ CREATE TABLE tempo_empresa_catgo (
 );
 
 -- Localidade
-CREATE TABLE localidade (
+CREATE TABLE IF NOT EXISTS localidade (
     id_localidade UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_localidade VARCHAR(255) NOT NULL UNIQUE,
     cidade VARCHAR(100),
@@ -124,7 +124,7 @@ CREATE TABLE localidade (
 );
 
 -- Dimensão de Avaliação
-CREATE TABLE dimensao_avaliacao (
+CREATE TABLE IF NOT EXISTS dimensao_avaliacao (
     id_dimensao_avaliacao UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_dimensao VARCHAR(255) NOT NULL UNIQUE,
     descricao TEXT,
@@ -139,7 +139,7 @@ CREATE TABLE dimensao_avaliacao (
 -- ===== TRANSACIONAIS (3 tabelas) =====
 
 -- Funcionário
-CREATE TABLE funcionario (
+CREATE TABLE IF NOT EXISTS funcionario (
     id_funcionario UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     nome_funcionario VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE,
@@ -163,7 +163,7 @@ CREATE TABLE funcionario (
 );
 
 -- Avaliação
-CREATE TABLE avaliacao (
+CREATE TABLE IF NOT EXISTS avaliacao (
     id_avaliacao UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_funcionario UUID NOT NULL REFERENCES funcionario(id_funcionario) ON DELETE CASCADE,
     data_avaliacao DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -173,7 +173,7 @@ CREATE TABLE avaliacao (
 );
 
 -- Resposta Dimensão
-CREATE TABLE resposta_dimensao (
+CREATE TABLE IF NOT EXISTS resposta_dimensao (
     id_resposta_dimensao UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_avaliacao UUID NOT NULL REFERENCES avaliacao(id_avaliacao) ON DELETE CASCADE,
     id_dimensao_avaliacao UUID NOT NULL REFERENCES dimensao_avaliacao(id_dimensao_avaliacao),
