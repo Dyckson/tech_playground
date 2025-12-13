@@ -62,7 +62,7 @@ async def get_empresa(
 
 
 @router.get(
-    "/{empresa_id}/arvore",
+    "/empresas/{empresa_id}/arvore",
     summary="Árvore hierárquica completa"
 )
 async def get_arvore_hierarquica(
@@ -86,7 +86,7 @@ async def get_arvore_hierarquica(
 
 
 @router.get(
-    "/{empresa_id}/areas",
+    "/empresas/{empresa_id}/areas",
     response_model=List[HierarquiaCompleta],
     summary="Listar todas as áreas com hierarquia"
 )
@@ -125,7 +125,7 @@ async def get_hierarquia_area(
 
 
 @router.get(
-    "/{empresa_id}/contagem-funcionarios",
+    "/empresas/{empresa_id}/funcionarios/contagem",
     response_model=List[ContagemPorArea],
     summary="Contagem de funcionários por área"
 )

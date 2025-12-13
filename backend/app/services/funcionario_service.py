@@ -19,7 +19,7 @@ class FuncionarioService:
     
     def listar_funcionarios(
         self,
-        empresa_id: UUID,
+        empresa_id: Optional[UUID],
         page: int = 1,
         page_size: int = 20,
         areas: Optional[List[UUID]] = None,
@@ -50,7 +50,7 @@ class FuncionarioService:
     
     def buscar_funcionarios(
         self,
-        empresa_id: UUID,
+        empresa_id: Optional[UUID],
         termo: str,
         page: int = 1,
         page_size: int = 20,
@@ -89,7 +89,7 @@ class FuncionarioService:
             return FuncionarioResponse(**funcionario_data)
         return None
     
-    def obter_filtros_disponiveis(self, empresa_id: UUID) -> dict:
+    def obter_filtros_disponiveis(self, empresa_id: Optional[UUID]) -> dict:
         """Obtém todas as opções de filtro disponíveis"""
         areas = self.repository.get_areas_unicas(empresa_id)
         cargos = self.repository.get_cargos_unicos(empresa_id)

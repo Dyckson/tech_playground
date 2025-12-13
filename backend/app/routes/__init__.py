@@ -14,7 +14,7 @@ def register_routes(app) -> None:
         app: Instância FastAPI
     """
     # API Router principal
-    api_router = APIRouter(prefix="/api")
+    api_router = APIRouter(prefix="/api/v1")
     
     # Hierarquia
     api_router.include_router(

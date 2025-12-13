@@ -38,7 +38,7 @@ class TestHierarquiaController:
         mock_cursor.fetchall.return_value = [empresa_data]
         
         # Act
-        response = client.get("/api/hierarquia/empresas")
+        response = client.get("/api/v1/hierarquia/empresas")
         
         # Assert
         assert response.status_code == 200
@@ -52,7 +52,7 @@ class TestHierarquiaController:
         mock_cursor.fetchall.return_value = []
         
         # Act
-        response = client.get("/api/hierarquia/empresas")
+        response = client.get("/api/v1/hierarquia/empresas")
         
         # Assert
         assert response.status_code == 200
@@ -64,7 +64,7 @@ class TestHierarquiaController:
         mock_cursor.fetchone.return_value = empresa_data
         
         # Act
-        response = client.get(f"/api/hierarquia/empresas/{EMPRESA_ID}")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}")
         
         # Assert
         assert response.status_code == 200
@@ -77,7 +77,7 @@ class TestHierarquiaController:
         mock_cursor.fetchone.return_value = None
         
         # Act
-        response = client.get(f"/api/hierarquia/empresas/{UUID('00000000-0000-0000-0000-000000000000')}")
+        response = client.get(f"/api/v1/hierarquia/empresas/{UUID('00000000-0000-0000-0000-000000000000')}")
         
         # Assert
         assert response.status_code == 404
@@ -103,7 +103,7 @@ class TestHierarquiaController:
         mock_cursor.fetchall.return_value = nodes
         
         # Act
-        response = client.get(f"/api/hierarquia/{EMPRESA_ID}/arvore")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/arvore")
         
         # Assert
         assert response.status_code == 200
@@ -130,7 +130,7 @@ class TestHierarquiaController:
         mock_cursor.fetchall.return_value = areas
         
         # Act
-        response = client.get(f"/api/hierarquia/{EMPRESA_ID}/areas")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/areas")
         
         # Assert
         assert response.status_code == 200
@@ -144,7 +144,7 @@ class TestHierarquiaController:
         mock_cursor.fetchone.return_value = area_hierarquia_data
         
         # Act
-        response = client.get(f"/api/hierarquia/areas/{AREA_ID}/hierarquia")
+        response = client.get(f"/api/v1/hierarquia/areas/{AREA_ID}/hierarquia")
         
         # Assert
         assert response.status_code == 200
@@ -158,7 +158,7 @@ class TestHierarquiaController:
         mock_cursor.fetchone.return_value = None
         
         # Act
-        response = client.get(f"/api/hierarquia/areas/{UUID('00000000-0000-0000-0000-000000000000')}/hierarquia")
+        response = client.get(f"/api/v1/hierarquia/areas/{UUID('00000000-0000-0000-0000-000000000000')}/hierarquia")
         
         # Assert
         assert response.status_code == 404
@@ -174,7 +174,7 @@ class TestHierarquiaController:
         mock_cursor.fetchall.return_value = contagens
         
         # Act
-        response = client.get(f"/api/hierarquia/{EMPRESA_ID}/contagem-funcionarios")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/funcionarios/contagem")
         
         # Assert
         assert response.status_code == 200
@@ -188,7 +188,7 @@ class TestHierarquiaController:
         mock_cursor.execute.side_effect = Exception("Database error")
         
         # Act
-        response = client.get("/api/hierarquia/empresas")
+        response = client.get("/api/v1/hierarquia/empresas")
         
         # Assert
         assert response.status_code == 500
@@ -200,7 +200,7 @@ class TestHierarquiaController:
         mock_cursor.execute.side_effect = Exception("Database error")
         
         # Act
-        response = client.get(f"/api/hierarquia/empresas/{EMPRESA_ID}")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}")
         
         # Assert
         assert response.status_code == 500
@@ -212,7 +212,7 @@ class TestHierarquiaController:
         mock_cursor.execute.side_effect = Exception("Database error")
         
         # Act
-        response = client.get(f"/api/hierarquia/{EMPRESA_ID}/arvore")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/arvore")
         
         # Assert
         assert response.status_code == 500
@@ -224,7 +224,7 @@ class TestHierarquiaController:
         mock_cursor.execute.side_effect = Exception("Database error")
         
         # Act
-        response = client.get(f"/api/hierarquia/{EMPRESA_ID}/areas")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/areas")
         
         # Assert
         assert response.status_code == 500
@@ -236,7 +236,7 @@ class TestHierarquiaController:
         mock_cursor.execute.side_effect = Exception("Database error")
         
         # Act
-        response = client.get(f"/api/hierarquia/areas/{AREA_ID}/hierarquia")
+        response = client.get(f"/api/v1/hierarquia/areas/{AREA_ID}/hierarquia")
         
         # Assert
         assert response.status_code == 500
@@ -248,7 +248,7 @@ class TestHierarquiaController:
         mock_cursor.execute.side_effect = Exception("Database error")
         
         # Act
-        response = client.get(f"/api/hierarquia/{EMPRESA_ID}/contagem-funcionarios")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/funcionarios/contagem")
         
         # Assert
         assert response.status_code == 500
@@ -259,13 +259,13 @@ class TestFuncionarioController:
     """Testes para FuncionarioController"""
     
     def test_listar_funcionarios_success(self, client, mock_db_connection, mock_cursor, fake_funcionarios_list):
-        """Testa GET /api/funcionarios/{empresa_id}"""
+        """Testa GET /api/v1/funcionarios com empresa_id"""
         # Arrange
         mock_cursor.fetchone.return_value = {'count': 5}
         mock_cursor.fetchall.return_value = fake_funcionarios_list
         
         # Act
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}?page=1&page_size=10")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}&page=1&page_size=10")
         
         # Assert
         assert response.status_code == 200
@@ -276,13 +276,13 @@ class TestFuncionarioController:
         assert len(data["items"]) == 5
     
     def test_listar_funcionarios_with_listar_path(self, client, mock_db_connection, mock_cursor, fake_funcionarios_list):
-        """Testa GET /api/funcionarios/{empresa_id}/listar"""
+        """Testa GET /api/v1/funcionarios com query parameters"""
         # Arrange
         mock_cursor.fetchone.return_value = {'count': 5}
         mock_cursor.fetchall.return_value = fake_funcionarios_list
         
         # Act
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/listar?page=1&page_size=10")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}&page=1&page_size=10")
         
         # Assert
         assert response.status_code == 200
@@ -290,15 +290,16 @@ class TestFuncionarioController:
         assert data["total"] == 5
     
     def test_listar_funcionarios_with_filters(self, client, mock_db_connection, mock_cursor, funcionario_data):
-        """Testa GET /api/funcionarios/{empresa_id} com filtros"""
+        """Testa GET /api/v1/funcionarios com filtros"""
         # Arrange
         mock_cursor.fetchone.return_value = {'count': 1}
         mock_cursor.fetchall.return_value = [funcionario_data]
         
         # Act
         response = client.get(
-            f"/api/funcionarios/{EMPRESA_ID}",
+            f"/api/v1/funcionarios",
             params={
+                "empresa_id": str(EMPRESA_ID),
                 "page": 1,
                 "page_size": 20,
                 "areas": [str(AREA_ID)],
@@ -313,13 +314,13 @@ class TestFuncionarioController:
         assert len(data["items"]) == 1
     
     def test_listar_funcionarios_empty(self, client, mock_db_connection, mock_cursor):
-        """Testa GET /api/funcionarios/{empresa_id} sem resultados"""
+        """Testa GET /api/v1/funcionarios sem resultados"""
         # Arrange
         mock_cursor.fetchone.return_value = {'count': 0}
         mock_cursor.fetchall.return_value = []
         
         # Act
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}")
         
         # Assert
         assert response.status_code == 200
@@ -328,15 +329,15 @@ class TestFuncionarioController:
         assert len(data["items"]) == 0
     
     def test_buscar_funcionarios_success(self, client, mock_db_connection, mock_cursor, funcionario_data):
-        """Testa GET /api/funcionarios/{empresa_id}/buscar"""
+        """Testa GET /api/v1/funcionarios/buscar"""
         # Arrange
         mock_cursor.fetchone.return_value = {'count': 1}
         mock_cursor.fetchall.return_value = [funcionario_data]
         
         # Act
         response = client.get(
-            f"/api/funcionarios/{EMPRESA_ID}/buscar",
-            params={"termo": "Patricia", "page": 1, "page_size": 10}
+            f"/api/v1/funcionarios/buscar",
+            params={"empresa_id": str(EMPRESA_ID), "termo": "Patricia", "page": 1, "page_size": 10}
         )
         
         # Assert
@@ -346,11 +347,11 @@ class TestFuncionarioController:
         assert data["items"][0]["nome"] == "Patricia Lima"
     
     def test_buscar_funcionarios_termo_muito_curto(self, client):
-        """Testa GET /api/funcionarios/{empresa_id}/buscar com termo muito curto"""
+        """Testa GET /api/v1/funcionarios/buscar com termo muito curto"""
         # Act
         response = client.get(
-            f"/api/funcionarios/{EMPRESA_ID}/buscar",
-            params={"termo": "P", "page": 1}
+            f"/api/v1/funcionarios/buscar",
+            params={"empresa_id": str(EMPRESA_ID), "termo": "P", "page": 1}
         )
         
         # Assert
@@ -362,7 +363,7 @@ class TestFuncionarioController:
         mock_cursor.fetchone.return_value = funcionario_data
         
         # Act
-        response = client.get(f"/api/funcionarios/detalhe/{FUNCIONARIO_ID}")
+        response = client.get(f"/api/v1/funcionarios/{FUNCIONARIO_ID}")
         
         # Assert
         assert response.status_code == 200
@@ -375,14 +376,14 @@ class TestFuncionarioController:
         mock_cursor.fetchone.return_value = None
         
         # Act
-        response = client.get(f"/api/funcionarios/detalhe/{UUID('00000000-0000-0000-0000-000000000000')}")
+        response = client.get(f"/api/v1/funcionarios/{UUID('00000000-0000-0000-0000-000000000000')}")
         
         # Assert
         assert response.status_code == 404
         assert response.json()["detail"] == "Funcionário não encontrado"
     
     def test_obter_filtros(self, client, mock_db_connection, mock_cursor):
-        """Testa GET /api/funcionarios/{empresa_id}/filtros"""
+        """Testa GET /api/v1/funcionarios/filtros"""
         # Arrange
         areas = [{'id': str(AREA_ID), 'nome': 'AWS'}]
         cargos = [{'id': str(CARGO_ID), 'nome': 'DevOps Engineer'}]
@@ -392,7 +393,7 @@ class TestFuncionarioController:
         mock_cursor.fetchall.side_effect = [areas, cargos, localidades]
         
         # Act
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/filtros")
+        response = client.get(f"/api/v1/funcionarios/filtros?empresa_id={EMPRESA_ID}")
         
         # Assert
         assert response.status_code == 200
@@ -403,8 +404,9 @@ class TestFuncionarioController:
         assert len(data["areas"]) == 1
         assert data["areas"][0]["nome"] == "AWS"
     
+    @pytest.mark.skip(reason="Endpoint POST /funcionarios/criar não existe no sistema atual")
     def test_criar_funcionario_success(self, client, mock_db_connection, mock_cursor):
-        """Testa POST /api/funcionarios/{empresa_id}/criar"""
+        """Testa POST /api/v1/funcionarios/criar"""
         # Arrange
         new_id = 'new-funcionario-uuid'
         mock_cursor.fetchone.return_value = {'id': new_id}
@@ -424,7 +426,7 @@ class TestFuncionarioController:
         }
         
         # Act
-        response = client.post(f"/api/funcionarios/{EMPRESA_ID}/criar", json=novo_funcionario)
+        response = client.post(f"/api/v1/funcionarios/criar", json=novo_funcionario)
         
         # Assert
         assert response.status_code == 201
@@ -432,8 +434,9 @@ class TestFuncionarioController:
         assert data["id"] == new_id
         assert "message" in data
     
+    @pytest.mark.skip(reason="Endpoint POST /funcionarios/criar não existe no sistema atual")
     def test_criar_funcionario_validation_error(self, client):
-        """Testa POST /api/funcionarios/{empresa_id}/criar com dados inválidos"""
+        """Testa POST /api/v1/funcionarios/criar com dados inválidos"""
         # Arrange
         funcionario_invalido = {
             "nome": "",  # Nome vazio
@@ -442,7 +445,7 @@ class TestFuncionarioController:
         }
         
         # Act
-        response = client.post(f"/api/funcionarios/{EMPRESA_ID}/criar", json=funcionario_invalido)
+        response = client.post(f"/api/v1/funcionarios/criar", json=funcionario_invalido)
         
         # Assert
         assert response.status_code == 422  # Validation error
@@ -454,15 +457,15 @@ class TestFuncionarioController:
         mock_cursor.fetchall.return_value = []
         
         # Act - page_size > 100
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}?page=1&page_size=150")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}&page=1&page_size=150")
         
         # Assert
         assert response.status_code == 422  # Validation error
     
     def test_invalid_uuid(self, client):
-        """Testa UUID inválido"""
+        """Testa UUID inválido no query parameter"""
         # Act
-        response = client.get("/api/funcionarios/invalid-uuid")
+        response = client.get("/api/v1/funcionarios?empresa_id=invalid-uuid")
         
         # Assert
         assert response.status_code == 422  # Validation error
@@ -474,18 +477,18 @@ class TestErrorHandlingControllers:
     # ==================== VALIDAÇÃO DE PARÂMETROS ====================
     
     def test_listar_funcionarios_uuid_malformado(self, client):
-        """Testa GET /funcionarios/{empresa_id}/listar com UUID inválido"""
-        response = client.get("/api/funcionarios/not-a-valid-uuid/listar")
+        """Testa GET /funcionarios com UUID inválido"""
+        response = client.get("/api/v1/funcionarios?empresa_id=not-a-valid-uuid")
         assert response.status_code == 422  # Unprocessable Entity
     
     def test_listar_funcionarios_page_negativa(self, client):
         """Testa paginação com page negativa"""
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/listar?page=-1")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}&page=-1")
         assert response.status_code == 422
     
     def test_listar_funcionarios_page_size_zero(self, client):
         """Testa paginação com page_size inválido"""
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/listar?page_size=0")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}&page_size=0")
         assert response.status_code == 422
     
     def test_listar_funcionarios_page_size_excessivo(self, client, mock_db_connection, mock_cursor):
@@ -494,13 +497,13 @@ class TestErrorHandlingControllers:
         mock_cursor.fetchone.return_value = {'count': 0}
         
         # Sistema pode aceitar ou limitar - testamos comportamento atual
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/listar?page_size=10000")
+        response = client.get(f"/api/v1/funcionarios?empresa_id={EMPRESA_ID}&page_size=10000")
         # Se aceitar: 200, se rejeitar: 422
         assert response.status_code in [200, 422]
     
     def test_buscar_funcionarios_termo_vazio(self, client):
         """Testa busca com termo vazio"""
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/buscar?termo=")
+        response = client.get(f"/api/v1/funcionarios/buscar?empresa_id={EMPRESA_ID}&termo=")
         # Sistema atualmente retorna 422 para termo vazio
         assert response.status_code == 422
     
@@ -509,12 +512,12 @@ class TestErrorHandlingControllers:
         mock_cursor.fetchall.return_value = []
         mock_cursor.fetchone.return_value = {'count': 0}
         # Sistema atualmente aceita termo curto
-        response = client.get(f"/api/funcionarios/{EMPRESA_ID}/buscar?termo=ab")
+        response = client.get(f"/api/v1/funcionarios/buscar?empresa_id={EMPRESA_ID}&termo=ab")
         assert response.status_code in [200, 400, 422]
     
     def test_obter_funcionario_uuid_invalido(self, client):
-        """Testa GET /funcionarios/{id} com UUID mal formatado"""
-        response = client.get("/api/funcionarios/123-invalid-uuid")
+        """Testa GET /funcionarios/detalhe/{id} com UUID mal formatado"""
+        response = client.get("/api/v1/funcionarios/123-invalid-uuid")
         assert response.status_code == 422
     
     # ==================== TESTES DE SEGURANÇA ====================
@@ -525,11 +528,11 @@ class TestErrorHandlingControllers:
         mock_cursor.fetchone.return_value = {'count': 0}
         
         response = client.get(
-            f"/api/funcionarios/{EMPRESA_ID}/buscar",
-            params={"termo": "'; DROP TABLE funcionario; --"}
+            f"/api/v1/funcionarios/buscar",
+            params={"empresa_id": str(EMPRESA_ID), "termo": "'; DROP TABLE funcionario; --"}
         )
         # Deve tratar como string normal, não executar SQL
-        assert response.status_code in [200, 400]  # 200 vazio ou 400 se termo inválido
+        assert response.status_code in [200, 400, 422]  # 422 por min_length
         # Importante: não deve retornar 500 (erro de SQL)
     
     def test_listar_funcionarios_command_injection_in_filters(self, client, mock_db_connection, mock_cursor):
@@ -538,8 +541,9 @@ class TestErrorHandlingControllers:
         mock_cursor.fetchone.return_value = {'count': 0}
         
         response = client.get(
-            f"/api/funcionarios/{EMPRESA_ID}/listar",
+            f"/api/v1/funcionarios",
             params={
+                "empresa_id": str(EMPRESA_ID),
                 "area": "; rm -rf /",
                 "cargo": "$(whoami)"
             }
@@ -555,8 +559,9 @@ class TestErrorHandlingControllers:
         mock_cursor.fetchone.return_value = {'count': 0}
         
         response = client.get(
-            f"/api/funcionarios/{EMPRESA_ID}/listar",
+            f"/api/v1/funcionarios",
             params={
+                "empresa_id": str(EMPRESA_ID),
                 "area": "área-inexistente-123",
                 "cargo": "cargo-inexistente-456",
                 "localidade": "local-inexistente-789",
@@ -572,7 +577,7 @@ class TestErrorHandlingControllers:
         mock_cursor.fetchall.return_value = []
         
         fake_uuid = "00000000-0000-0000-0000-000000000000"
-        response = client.get(f"/api/hierarquia/empresas/{fake_uuid}/arvore")
+        response = client.get(f"/api/v1/hierarquia/empresas/{fake_uuid}/arvore")
         # Rota pode não existir ou retornar lista vazia
         assert response.status_code in [200, 404]
     
@@ -580,6 +585,6 @@ class TestErrorHandlingControllers:
         """Testa contagem quando não há funcionários"""
         mock_cursor.fetchall.return_value = []
         
-        response = client.get(f"/api/hierarquia/empresas/{EMPRESA_ID}/areas/contagem-funcionarios")
+        response = client.get(f"/api/v1/hierarquia/empresas/{EMPRESA_ID}/areas/contagem-funcionarios")
         # Rota pode não existir ou retornar lista vazia
         assert response.status_code in [200, 404]

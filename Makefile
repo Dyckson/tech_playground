@@ -48,7 +48,7 @@ test-unit: ## Executa apenas testes unitários
 
 test-integration: ## Executa apenas testes de integração
 	@echo "$(BLUE)🧪 Executando testes de integração...$(NC)"
-	docker exec -it tech_playground_backend pytest tests/integracao/ -v
+	docker exec -it tech_playground_backend pytest tests/integracao/ -v --cov-fail-under=70
 
 test-cov: ## Executa testes com cobertura de código
 	@echo "$(BLUE)📊 Executando testes com cobertura...$(NC)"

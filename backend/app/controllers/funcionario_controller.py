@@ -19,15 +19,15 @@ def get_funcionario_service():
     return FuncionarioService()
 
 
-@router.get("/{empresa_id}", response_model=FuncionarioPaginada)
-@router.get("/{empresa_id}/listar", response_model=FuncionarioPaginada)
+@router.get("", response_model=FuncionarioPaginada)
 async def listar_funcionarios(
-    empresa_id: UUID,
+    empresa_id: Optional[UUID] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     areas: Optional[List[UUID]] = Query(None),
     cargos: Optional[List[UUID]] = Query(None),
     localidades: Optional[List[UUID]] = Query(None),
+    cargo: Optional[str] = Query(None),
     service: FuncionarioService = Depends(get_funcionario_service)
 ):
     """Lista funcionários com paginação e filtros"""
@@ -41,10 +41,10 @@ async def listar_funcionarios(
     )
 
 
-@router.get("/{empresa_id}/buscar", response_model=FuncionarioPaginada)
+@router.get("/buscar", response_model=FuncionarioPaginada)
 async def buscar_funcionarios(
-    empresa_id: UUID,
-    termo: str = Query(..., min_length=2),
+    termo: str = Query(..., min_length=3),
+    empresa_id: Optional[UUID] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     areas: Optional[List[UUID]] = Query(None),
@@ -64,7 +64,16 @@ async def buscar_funcionarios(
     )
 
 
-@router.get("/detalhe/{funcionario_id}", response_model=FuncionarioResponse)
+@router.get("/filtros")
+async def obter_filtros(
+    empresa_id: Optional[UUID] = Query(None),
+    service: FuncionarioService = Depends(get_funcionario_service)
+):
+    """Obtém opções disponíveis para filtros"""
+    return service.obter_filtros_disponiveis(empresa_id)
+
+
+@router.get("/{funcionario_id}", response_model=FuncionarioResponse)
 async def obter_funcionario(
     funcionario_id: UUID,
     service: FuncionarioService = Depends(get_funcionario_service)
@@ -76,18 +85,8 @@ async def obter_funcionario(
     return funcionario
 
 
-@router.get("/{empresa_id}/filtros")
-async def obter_filtros(
-    empresa_id: UUID,
-    service: FuncionarioService = Depends(get_funcionario_service)
-):
-    """Obtém opções disponíveis para filtros"""
-    return service.obter_filtros_disponiveis(empresa_id)
-
-
-@router.post("/{empresa_id}/criar", status_code=201)
+@router.post("", status_code=201)
 async def criar_funcionario(
-    empresa_id: UUID,
     funcionario: FuncionarioCreate,
     service: FuncionarioService = Depends(get_funcionario_service)
 ):

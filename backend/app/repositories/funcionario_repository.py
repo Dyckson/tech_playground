@@ -10,7 +10,7 @@ class FuncionarioRepository(BaseRepository):
     
     def get_funcionarios_paginado(
         self,
-        empresa_id: UUID,
+        empresa_id: Optional[UUID],
         page: int,
         page_size: int,
         areas: Optional[List[UUID]] = None,
@@ -19,10 +19,15 @@ class FuncionarioRepository(BaseRepository):
     ) -> Tuple[List[Dict], int]:
         """Retorna funcionários com paginação e filtros"""
         
-        params_list = [str(empresa_id)]
+        params_list = []
+        empresa_filter = ""
         area_filter = ""
         cargo_filter = ""
         localidade_filter = ""
+        
+        if empresa_id:
+            empresa_filter = " AND d.id_empresa = %s"
+            params_list.append(str(empresa_id))
         
         if areas:
             area_filter = " AND f.id_area_detalhe IN (" + ",".join(["%s"] * len(areas)) + ")"
@@ -41,8 +46,7 @@ class FuncionarioRepository(BaseRepository):
             JOIN coordenacao co ON co.id_coordenacao = a.id_coordenacao
             JOIN gerencia g ON g.id_gerencia = co.id_gerencia
             JOIN diretoria d ON d.id_diretoria = g.id_diretoria
-            WHERE d.id_empresa = %s AND f.ativo = true
-            {area_filter}{cargo_filter}{localidade_filter}
+            WHERE f.ativo = true{empresa_filter}{area_filter}{cargo_filter}{localidade_filter}
         """
         
         total = self.execute_scalar(count_query, tuple(params_list))
@@ -82,8 +86,7 @@ class FuncionarioRepository(BaseRepository):
             LEFT JOIN genero_catgo gen ON gen.id_genero_catgo = f.id_genero_catgo
             LEFT JOIN geracao_catgo ger ON ger.id_geracao_catgo = f.id_geracao_catgo
             LEFT JOIN tempo_empresa_catgo t ON t.id_tempo_empresa_catgo = f.id_tempo_empresa_catgo
-            WHERE d.id_empresa = %s AND f.ativo = true
-            {area_filter}{cargo_filter}{localidade_filter}
+            WHERE f.ativo = true{empresa_filter}{area_filter}{cargo_filter}{localidade_filter}
             ORDER BY f.nome_funcionario
             LIMIT %s OFFSET %s
         """
@@ -93,7 +96,7 @@ class FuncionarioRepository(BaseRepository):
     
     def buscar_funcionarios(
         self,
-        empresa_id: UUID,
+        empresa_id: Optional[UUID],
         termo_busca: str,
         page: int,
         page_size: int,
@@ -103,10 +106,15 @@ class FuncionarioRepository(BaseRepository):
     ) -> Tuple[List[Dict], int]:
         """Busca funcionários por nome ou email"""
         
-        params_list = [str(empresa_id)]
+        params_list = []
+        empresa_filter = ""
         area_filter = ""
         cargo_filter = ""
         localidade_filter = ""
+        
+        if empresa_id:
+            empresa_filter = " AND d.id_empresa = %s"
+            params_list.append(str(empresa_id))
         
         if areas:
             area_filter = " AND f.id_area_detalhe IN (" + ",".join(["%s"] * len(areas)) + ")"
@@ -129,8 +137,7 @@ class FuncionarioRepository(BaseRepository):
             JOIN coordenacao co ON co.id_coordenacao = a.id_coordenacao
             JOIN gerencia g ON g.id_gerencia = co.id_gerencia
             JOIN diretoria d ON d.id_diretoria = g.id_diretoria
-            WHERE d.id_empresa = %s AND f.ativo = true
-            {area_filter}{cargo_filter}{localidade_filter}
+            WHERE f.ativo = true{empresa_filter}{area_filter}{cargo_filter}{localidade_filter}
             AND (f.nome_funcionario ILIKE %s OR f.email ILIKE %s)
         """
         
@@ -171,8 +178,7 @@ class FuncionarioRepository(BaseRepository):
             LEFT JOIN genero_catgo gen ON gen.id_genero_catgo = f.id_genero_catgo
             LEFT JOIN geracao_catgo ger ON ger.id_geracao_catgo = f.id_geracao_catgo
             LEFT JOIN tempo_empresa_catgo t ON t.id_tempo_empresa_catgo = f.id_tempo_empresa_catgo
-            WHERE d.id_empresa = %s AND f.ativo = true
-            {area_filter}{cargo_filter}{localidade_filter}
+            WHERE f.ativo = true{empresa_filter}{area_filter}{cargo_filter}{localidade_filter}
             AND (f.nome_funcionario ILIKE %s OR f.email ILIKE %s)
             ORDER BY f.nome_funcionario
             LIMIT %s OFFSET %s
@@ -219,54 +225,85 @@ class FuncionarioRepository(BaseRepository):
         """
         return self.execute_one(query, (str(funcionario_id),))
     
-    def get_areas_unicas(self, empresa_id: UUID) -> List[Dict]:
+    def get_areas_unicas(self, empresa_id: Optional[UUID]) -> List[Dict]:
         """Retorna áreas únicas da empresa"""
-        query = """
-            SELECT DISTINCT
-                a.id_area_detalhe as id,
-                a.nome_area_detalhe as nome
-            FROM area_detalhe a
-            JOIN coordenacao c ON c.id_coordenacao = a.id_coordenacao
-            JOIN gerencia g ON g.id_gerencia = c.id_gerencia
-            JOIN diretoria d ON d.id_diretoria = g.id_diretoria
-            WHERE d.id_empresa = %s AND a.ativo = true
-            ORDER BY a.nome_area_detalhe
-        """
-        return self.execute_query(query, (str(empresa_id),))
+        if empresa_id:
+            query = """
+                SELECT DISTINCT
+                    a.id_area_detalhe as id,
+                    a.nome_area_detalhe as nome
+                FROM area_detalhe a
+                JOIN coordenacao c ON c.id_coordenacao = a.id_coordenacao
+                JOIN gerencia g ON g.id_gerencia = c.id_gerencia
+                JOIN diretoria d ON d.id_diretoria = g.id_diretoria
+                WHERE d.id_empresa = %s AND a.ativo = true
+                ORDER BY a.nome_area_detalhe
+            """
+            return self.execute_query(query, (str(empresa_id),))
+        else:
+            query = """
+                SELECT DISTINCT
+                    a.id_area_detalhe as id,
+                    a.nome_area_detalhe as nome
+                FROM area_detalhe a
+                WHERE a.ativo = true
+                ORDER BY a.nome_area_detalhe
+            """
+            return self.execute_query(query)
     
-    def get_cargos_unicos(self, empresa_id: UUID) -> List[Dict]:
+    def get_cargos_unicos(self, empresa_id: Optional[UUID]) -> List[Dict]:
         """Retorna cargos únicos usados na empresa"""
-        query = """
-            SELECT DISTINCT
-                c.id_cargo as id,
-                c.nome_cargo as nome
-            FROM cargo c
-            JOIN funcionario f ON f.id_cargo = c.id_cargo
-            JOIN area_detalhe a ON a.id_area_detalhe = f.id_area_detalhe
-            JOIN coordenacao co ON co.id_coordenacao = a.id_coordenacao
-            JOIN gerencia g ON g.id_gerencia = co.id_gerencia
-            JOIN diretoria d ON d.id_diretoria = g.id_diretoria
-            WHERE d.id_empresa = %s AND f.ativo = true
-            ORDER BY c.nome_cargo
-        """
-        return self.execute_query(query, (str(empresa_id),))
+        if empresa_id:
+            query = """
+                SELECT DISTINCT
+                    c.id_cargo as id,
+                    c.nome_cargo as nome
+                FROM cargo c
+                JOIN funcionario f ON f.id_cargo = c.id_cargo
+                JOIN area_detalhe a ON a.id_area_detalhe = f.id_area_detalhe
+                JOIN coordenacao co ON co.id_coordenacao = a.id_coordenacao
+                JOIN gerencia g ON g.id_gerencia = co.id_gerencia
+                JOIN diretoria d ON d.id_diretoria = g.id_diretoria
+                WHERE d.id_empresa = %s AND f.ativo = true
+                ORDER BY c.nome_cargo
+            """
+            return self.execute_query(query, (str(empresa_id),))
+        else:
+            query = """
+                SELECT DISTINCT
+                    c.id_cargo as id,
+                    c.nome_cargo as nome
+                FROM cargo c
+                ORDER BY c.nome_cargo
+            """
+            return self.execute_query(query)
     
-    def get_localidades_unicas(self, empresa_id: UUID) -> List[Dict]:
+    def get_localidades_unicas(self, empresa_id: Optional[UUID]) -> List[Dict]:
         """Retorna localidades únicas usadas na empresa"""
-        query = """
-            SELECT DISTINCT
-                l.id_localidade as id,
-                l.nome_localidade as nome
-            FROM localidade l
-            JOIN funcionario f ON f.id_localidade = l.id_localidade
-            JOIN area_detalhe a ON a.id_area_detalhe = f.id_area_detalhe
-            JOIN coordenacao co ON co.id_coordenacao = a.id_coordenacao
-            JOIN gerencia g ON g.id_gerencia = co.id_gerencia
-            JOIN diretoria d ON d.id_diretoria = g.id_diretoria
-            WHERE d.id_empresa = %s AND f.ativo = true
-            ORDER BY l.nome_localidade
-        """
-        return self.execute_query(query, (str(empresa_id),))
+        if empresa_id:
+            query = """
+                SELECT DISTINCT
+                    l.id_localidade as id,
+                    l.nome_localidade as nome
+                FROM localidade l
+                JOIN funcionario f ON f.id_localidade = l.id_localidade
+                JOIN area_detalhe a ON a.id_area_detalhe = f.id_area_detalhe
+                JOIN coordenacao co ON co.id_coordenacao = a.id_coordenacao
+                JOIN gerencia g ON g.id_gerencia = co.id_gerencia
+                JOIN diretoria d ON d.id_diretoria = g.id_diretoria
+                WHERE d.id_empresa = %s AND f.ativo = true
+                ORDER BY l.nome_localidade
+            """
+            return self.execute_query(query, (str(empresa_id),))
+        else:
+            query = """
+                SELECT DISTINCT
+                    l.id_localidade as id,
+                    l.nome_localidade as nome
+                FROM localidade l
+                ORDER BY l.nome_localidade
+            """
+            return self.execute_query(query)
     
     def criar_funcionario(self, dados: Dict) -> str:
         """Cria novo funcionário"""

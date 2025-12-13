@@ -11,7 +11,7 @@ class FuncionarioBase(BaseModel):
     nome: str = Field(..., min_length=1, max_length=255)
     email: EmailStr
     email_corporativo: Optional[EmailStr] = None
-    funcao: str = Field(..., description="profissional ou gestor")
+    funcao: Optional[str] = Field(None, description="profissional ou gestor")
 
 
 class FuncionarioCreate(FuncionarioBase):
