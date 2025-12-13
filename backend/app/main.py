@@ -46,13 +46,13 @@ app = FastAPI(
     title=settings.API_TITLE,
     description="""
     ## Tech Playground API - Sistema de eNPS e Feedback
-    
+
     ### Funcionalidades:
     - 📊 **Hierarquia**: Gestão de estrutura organizacional (empresa → diretoria → gerência → coordenação → área)
     - 👥 **Funcionários**: CRUD completo com busca, filtros e paginação
     - 📝 **Avaliações**: Gestão de avaliações com 7 dimensões de feedback
     - 📈 **Analytics**: Cálculos de eNPS, favorabilidade e insights
-    
+
     ### Métricas:
     - **eNPS**: Employee Net Promoter Score (-100 a +100)
     - **Favorabilidade**: % de respostas positivas (4-5 em escala Likert 1-5)

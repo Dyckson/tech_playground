@@ -82,9 +82,9 @@ class FuncionarioService:
         localidades = self.repository.get_localidades_unicas(empresa_id)
 
         return {
-            "areas": [FiltroOpcao(**a) for a in areas],
-            "cargos": [FiltroOpcao(**c) for c in cargos],
-            "localidades": [FiltroOpcao(**l) for l in localidades],
+            "areas": [FiltroOpcao(**area) for area in areas],
+            "cargos": [FiltroOpcao(**cargo) for cargo in cargos],
+            "localidades": [FiltroOpcao(**localidade) for localidade in localidades],
         }
 
     def criar_funcionario(self, funcionario: FuncionarioCreate) -> str:

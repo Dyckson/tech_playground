@@ -28,7 +28,7 @@ async def listar_empresas(service: HierarquiaService = Depends(get_hierarquia_se
         return service.get_all_empresas()
     except Exception as e:
         logger.error(f"Erro ao listar empresas: {e}")
-        raise HTTPException(status_code=500, detail="Erro ao listar empresas")
+        raise HTTPException(status_code=500, detail="Erro ao listar empresas") from e
 
 
 @router.get("/empresas/{empresa_id}", response_model=EmpresaResponse, summary="Buscar empresa por ID")
@@ -46,7 +46,7 @@ async def get_empresa(
         raise
     except Exception as e:
         logger.error(f"Erro ao buscar empresa: {e}")
-        raise HTTPException(status_code=500, detail="Erro ao buscar empresa")
+        raise HTTPException(status_code=500, detail="Erro ao buscar empresa") from e
 
 
 @router.get("/empresas/{empresa_id}/arvore", summary="Árvore hierárquica completa")
@@ -67,7 +67,7 @@ async def get_arvore_hierarquica(
         return service.get_arvore_hierarquica(empresa_id)
     except Exception as e:
         logger.error(f"Erro ao buscar árvore hierárquica: {e}")
-        raise HTTPException(status_code=500, detail="Erro ao buscar hierarquia")
+        raise HTTPException(status_code=500, detail="Erro ao buscar hierarquia") from e
 
 
 @router.get(
@@ -84,7 +84,7 @@ async def listar_areas(
         return service.get_areas(empresa_id)
     except Exception as e:
         logger.error(f"Erro ao listar áreas: {e}")
-        raise HTTPException(status_code=500, detail="Erro ao listar áreas")
+        raise HTTPException(status_code=500, detail="Erro ao listar áreas") from e
 
 
 @router.get(
@@ -103,7 +103,7 @@ async def get_hierarquia_area(
         raise
     except Exception as e:
         logger.error(f"Erro ao buscar hierarquia da área: {e}")
-        raise HTTPException(status_code=500, detail="Erro ao buscar hierarquia")
+        raise HTTPException(status_code=500, detail="Erro ao buscar hierarquia") from e
 
 
 @router.get(
@@ -120,4 +120,4 @@ async def contagem_funcionarios(
         return service.get_contagem_funcionarios(empresa_id)
     except Exception as e:
         logger.error(f"Erro ao contar funcionários: {e}")
-        raise HTTPException(status_code=500, detail="Erro ao contar funcionários")
+        raise HTTPException(status_code=500, detail="Erro ao contar funcionários") from e

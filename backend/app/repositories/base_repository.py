@@ -18,7 +18,7 @@ class BaseRepository:
     def __init__(self):
         self.db = DatabaseConnection
 
-    def execute_query(self, query: str, params: tuple = None) -> list[dict[str, Any]]:
+    def execute_query(self, query: str, params: tuple | None = None) -> list[dict[str, Any]]:
         """
         Executa query SELECT e retorna lista de dicionários
         """
@@ -29,7 +29,7 @@ class BaseRepository:
             cursor.close()
             return [dict(row) for row in results]
 
-    def execute_one(self, query: str, params: tuple = None) -> dict[str, Any] | None:
+    def execute_one(self, query: str, params: tuple | None = None) -> dict[str, Any] | None:
         """
         Executa query SELECT e retorna um único registro
         """
@@ -40,7 +40,7 @@ class BaseRepository:
             cursor.close()
             return dict(result) if result else None
 
-    def execute_insert(self, query: str, params: tuple = None) -> str | None:
+    def execute_insert(self, query: str, params: tuple | None = None) -> str | None:
         """
         Executa INSERT e retorna o ID inserido
         """
@@ -57,7 +57,7 @@ class BaseRepository:
                 logger.error(f"Erro no INSERT: {e}")
                 raise
 
-    def execute_update(self, query: str, params: tuple = None) -> int:
+    def execute_update(self, query: str, params: tuple | None = None) -> int:
         """
         Executa UPDATE e retorna número de linhas afetadas
         """
@@ -74,7 +74,7 @@ class BaseRepository:
                 logger.error(f"Erro no UPDATE: {e}")
                 raise
 
-    def execute_delete(self, query: str, params: tuple = None) -> int:
+    def execute_delete(self, query: str, params: tuple | None = None) -> int:
         """
         Executa DELETE e retorna número de linhas deletadas
         """
@@ -91,7 +91,7 @@ class BaseRepository:
                 logger.error(f"Erro no DELETE: {e}")
                 raise
 
-    def execute_scalar(self, query: str, params: tuple = None) -> Any:
+    def execute_scalar(self, query: str, params: tuple | None = None) -> Any:
         """
         Executa query e retorna um único valor escalar
         """
@@ -102,10 +102,10 @@ class BaseRepository:
             cursor.close()
             # Se result é um dicionário (RealDictCursor), pega o primeiro valor
             if result:
-                return list(result.values())[0] if isinstance(result, dict) else result[0]
+                return next(iter(result.values())) if isinstance(result, dict) else result[0]
             return None
 
-    def execute_count(self, table: str, where: str = "", params: tuple = None) -> int:
+    def execute_count(self, table: str, where: str = "", params: tuple | None = None) -> int:
         """
         Conta registros em uma tabela
         """

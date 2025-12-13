@@ -42,8 +42,8 @@ class TestDataIntegrity:
     def test_todos_funcionarios_tem_area(self, db_cursor):
         """Verifica se todos os funcionários têm área"""
         db_cursor.execute("""
-            SELECT COUNT(*) as count 
-            FROM funcionario 
+            SELECT COUNT(*) as count
+            FROM funcionario
             WHERE id_area_detalhe IS NULL
         """)
         result = db_cursor.fetchone()
@@ -53,8 +53,8 @@ class TestDataIntegrity:
     def test_todos_funcionarios_tem_cargo(self, db_cursor):
         """Verifica se todos os funcionários têm cargo"""
         db_cursor.execute("""
-            SELECT COUNT(*) as count 
-            FROM funcionario 
+            SELECT COUNT(*) as count
+            FROM funcionario
             WHERE id_cargo IS NULL
         """)
         result = db_cursor.fetchone()
@@ -64,10 +64,10 @@ class TestDataIntegrity:
     def test_todos_funcionarios_tem_email_valido(self, db_cursor):
         """Verifica se todos os emails são válidos"""
         db_cursor.execute("""
-            SELECT COUNT(*) as count 
-            FROM funcionario 
-            WHERE email IS NULL 
-            OR email = '' 
+            SELECT COUNT(*) as count
+            FROM funcionario
+            WHERE email IS NULL
+            OR email = ''
             OR email NOT LIKE '%@%'
         """)
         result = db_cursor.fetchone()
@@ -77,9 +77,9 @@ class TestDataIntegrity:
     def test_emails_unicos(self, db_cursor):
         """Verifica se não há emails duplicados"""
         db_cursor.execute("""
-            SELECT email, COUNT(*) as count 
-            FROM funcionario 
-            GROUP BY email 
+            SELECT email, COUNT(*) as count
+            FROM funcionario
+            GROUP BY email
             HAVING COUNT(*) > 1
         """)
         duplicates = db_cursor.fetchall()
@@ -89,8 +89,8 @@ class TestDataIntegrity:
     def test_todas_areas_tem_coordenacao(self, db_cursor):
         """Verifica se todas as áreas pertencem a uma coordenação"""
         db_cursor.execute("""
-            SELECT COUNT(*) as count 
-            FROM area_detalhe 
+            SELECT COUNT(*) as count
+            FROM area_detalhe
             WHERE id_coordenacao IS NULL
         """)
         result = db_cursor.fetchone()
@@ -104,7 +104,7 @@ class TestDataIntegrity:
             SELECT COUNT(*) as count
             FROM funcionario f
             LEFT JOIN area_detalhe ad ON f.id_area_detalhe = ad.id_area_detalhe
-            WHERE f.id_area_detalhe IS NOT NULL 
+            WHERE f.id_area_detalhe IS NOT NULL
             AND ad.id_area_detalhe IS NULL
         """)
         result = db_cursor.fetchone()
@@ -115,7 +115,7 @@ class TestDataIntegrity:
             SELECT COUNT(*) as count
             FROM funcionario f
             LEFT JOIN cargo c ON f.id_cargo = c.id_cargo
-            WHERE f.id_cargo IS NOT NULL 
+            WHERE f.id_cargo IS NOT NULL
             AND c.id_cargo IS NULL
         """)
         result = db_cursor.fetchone()
@@ -128,7 +128,7 @@ class TestDataDistribution:
     def test_funcionarios_distribuidos_por_empresa(self, db_cursor):
         """Verifica se funcionários estão distribuídos nas empresas"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 e.nome_empresa,
                 COUNT(DISTINCT f.id_funcionario) as total_funcionarios
             FROM empresa e
@@ -151,7 +151,7 @@ class TestDataDistribution:
     def test_cargos_distribuidos(self, db_cursor):
         """Verifica distribuição de funcionários por cargo"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 c.nome_cargo,
                 COUNT(*) as total
             FROM funcionario f
@@ -169,7 +169,7 @@ class TestDataDistribution:
     def test_areas_distribuidas(self, db_cursor):
         """Verifica distribuição de funcionários por área"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 ad.nome_area_detalhe,
                 COUNT(*) as total
             FROM funcionario f
@@ -188,7 +188,7 @@ class TestHierarchyIntegrity:
     def test_hierarquia_completa(self, db_cursor):
         """Verifica se a hierarquia está completa (empresa → diretoria → gerência → coordenação → área)"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 e.nome_empresa,
                 d.nome_diretoria,
                 g.nome_gerencia,

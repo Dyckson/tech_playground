@@ -26,8 +26,8 @@ class TestDatabaseConnection:
     def test_database_has_expected_tables(self, db_cursor):
         """Verifica se as tabelas principais existem"""
         db_cursor.execute("""
-            SELECT table_name 
-            FROM information_schema.tables 
+            SELECT table_name
+            FROM information_schema.tables
             WHERE table_schema = 'public'
             AND table_name IN ('empresa', 'funcionario', 'avaliacao', 'area_detalhe')
             ORDER BY table_name
@@ -54,7 +54,7 @@ class TestDatabaseTransactions:
         # Tenta inserir (vai falhar por constraint ou será desfeito)
         try:
             cursor.execute("""
-                INSERT INTO empresa (nome_empresa) 
+                INSERT INTO empresa (nome_empresa)
                 VALUES ('Empresa Teste Rollback XYZ')
             """)
             db_connection.rollback()
@@ -92,12 +92,12 @@ class TestDatabaseConstraints:
         with pytest.raises(psycopg2.Error):
             db_cursor.execute("""
                 INSERT INTO funcionario (
-                    nome_funcionario, email, id_area_detalhe, 
+                    nome_funcionario, email, id_area_detalhe,
                     id_cargo, id_genero_catgo, id_geracao_catgo,
                     id_tempo_empresa_catgo, id_localidade
                 )
                 VALUES (
-                    'Teste', 'teste@email.com', 
+                    'Teste', 'teste@email.com',
                     '00000000-0000-0000-0000-000000000000'::uuid,
                     '00000000-0000-0000-0000-000000000000'::uuid,
                     '00000000-0000-0000-0000-000000000000'::uuid,
@@ -122,12 +122,12 @@ class TestDatabaseConstraints:
                         id_cargo, id_genero_catgo, id_geracao_catgo,
                         id_tempo_empresa_catgo, id_localidade
                     )
-                    SELECT 
-                        'Teste Duplicado', 
+                    SELECT
+                        'Teste Duplicado',
                         %s,
-                        id_area_detalhe, id_cargo, id_genero_catgo, 
+                        id_area_detalhe, id_cargo, id_genero_catgo,
                         id_geracao_catgo, id_tempo_empresa_catgo, id_localidade
-                    FROM funcionario 
+                    FROM funcionario
                     LIMIT 1
                 """,
                     (existing["email"],),
@@ -140,7 +140,7 @@ class TestDatabaseQueries:
     def test_query_funcionarios_with_joins(self, db_cursor):
         """Testa query com múltiplos JOINs"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 f.id_funcionario,
                 f.nome_funcionario,
                 f.email,
@@ -167,7 +167,7 @@ class TestDatabaseQueries:
     def test_query_hierarquia_completa(self, db_cursor):
         """Testa query de hierarquia organizacional"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 e.nome_empresa,
                 d.nome_diretoria,
                 g.nome_gerencia,
@@ -180,7 +180,7 @@ class TestDatabaseQueries:
             INNER JOIN coordenacao c ON g.id_gerencia = c.id_gerencia
             INNER JOIN area_detalhe ad ON c.id_coordenacao = ad.id_coordenacao
             LEFT JOIN funcionario f ON ad.id_area_detalhe = f.id_area_detalhe
-            GROUP BY e.nome_empresa, d.nome_diretoria, g.nome_gerencia, 
+            GROUP BY e.nome_empresa, d.nome_diretoria, g.nome_gerencia,
                      c.nome_coordenacao, ad.nome_area_detalhe
             LIMIT 10
         """)
@@ -197,7 +197,7 @@ class TestDatabaseQueries:
     def test_query_agregacao_por_cargo(self, db_cursor):
         """Testa query de agregação por cargo"""
         db_cursor.execute("""
-            SELECT 
+            SELECT
                 c.nome_cargo,
                 COUNT(*) as total
             FROM funcionario f

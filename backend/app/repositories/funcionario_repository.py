@@ -31,13 +31,13 @@ class FuncionarioRepository(BaseRepository):
 
         if areas:
             area_filter = " AND f.id_area_detalhe IN (" + ",".join(["%s"] * len(areas)) + ")"
-            params_list.extend([str(a) for a in areas])
+            params_list.extend([str(area) for area in areas])
         if cargos:
             cargo_filter = " AND f.id_cargo IN (" + ",".join(["%s"] * len(cargos)) + ")"
-            params_list.extend([str(c) for c in cargos])
+            params_list.extend([str(cargo) for cargo in cargos])
         if localidades:
             localidade_filter = " AND f.id_localidade IN (" + ",".join(["%s"] * len(localidades)) + ")"
-            params_list.extend([str(l) for l in localidades])
+            params_list.extend([str(localidade) for localidade in localidades])
 
         count_query = f"""
             SELECT COUNT(*)
@@ -55,7 +55,7 @@ class FuncionarioRepository(BaseRepository):
         params_list.extend([limit, offset])
 
         query = f"""
-            SELECT 
+            SELECT
                 f.id_funcionario as id,
                 f.nome_funcionario as nome,
                 f.email,
@@ -118,13 +118,13 @@ class FuncionarioRepository(BaseRepository):
 
         if areas:
             area_filter = " AND f.id_area_detalhe IN (" + ",".join(["%s"] * len(areas)) + ")"
-            params_list.extend([str(a) for a in areas])
+            params_list.extend([str(area) for area in areas])
         if cargos:
             cargo_filter = " AND f.id_cargo IN (" + ",".join(["%s"] * len(cargos)) + ")"
-            params_list.extend([str(c) for c in cargos])
+            params_list.extend([str(cargo) for cargo in cargos])
         if localidades:
             localidade_filter = " AND f.id_localidade IN (" + ",".join(["%s"] * len(localidades)) + ")"
-            params_list.extend([str(l) for l in localidades])
+            params_list.extend([str(localidade) for localidade in localidades])
 
         search_pattern = f"%{termo_busca}%"
         params_list.append(search_pattern)
@@ -147,7 +147,7 @@ class FuncionarioRepository(BaseRepository):
         params_list.extend([limit, offset])
 
         query = f"""
-            SELECT 
+            SELECT
                 f.id_funcionario as id,
                 f.nome_funcionario as nome,
                 f.email,
@@ -190,7 +190,7 @@ class FuncionarioRepository(BaseRepository):
     def get_funcionario_by_id(self, funcionario_id: UUID) -> dict | None:
         """Busca funcionário por ID"""
         query = """
-            SELECT 
+            SELECT
                 f.id_funcionario as id,
                 f.nome_funcionario as nome,
                 f.email,

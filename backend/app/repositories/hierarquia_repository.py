@@ -36,7 +36,7 @@ class HierarquiaRepository(BaseRepository):
         empresa -> diretoria -> gerencia -> coordenacao -> area
         """
         query = """
-            SELECT 
+            SELECT
                 e.id_empresa as empresa_id,
                 e.nome_empresa as empresa_nome,
                 d.id_diretoria as diretoria_id,
@@ -60,7 +60,7 @@ class HierarquiaRepository(BaseRepository):
     def get_areas_by_empresa(self, empresa_id: UUID) -> list[dict]:
         """Retorna todas as áreas de uma empresa com hierarquia completa"""
         query = """
-            SELECT 
+            SELECT
                 a.id_area_detalhe as id,
                 a.nome_area_detalhe as nome,
                 a.ativo,
@@ -85,7 +85,7 @@ class HierarquiaRepository(BaseRepository):
     def get_area_hierarquia(self, area_id: UUID) -> dict | None:
         """Retorna hierarquia completa de uma área específica"""
         query = """
-            SELECT 
+            SELECT
                 e.id_empresa as empresa_id,
                 e.nome_empresa as empresa,
                 d.id_diretoria as diretoria_id,
@@ -138,7 +138,7 @@ class HierarquiaRepository(BaseRepository):
     def count_funcionarios_by_area(self, empresa_id: UUID) -> list[dict]:
         """Conta funcionários por área"""
         query = """
-            SELECT 
+            SELECT
                 a.id_area_detalhe as area_id,
                 a.nome_area_detalhe as area_nome,
                 COUNT(f.id_funcionario) as total_funcionarios

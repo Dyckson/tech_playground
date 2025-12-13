@@ -208,7 +208,7 @@ class TestFuncionarioRepository:
 
         # Assert
         assert len(result) == 2
-        assert "Remoto - Brasil" in [l["nome"] for l in result]
+        assert "Remoto - Brasil" in [loc["nome"] for loc in result]
 
     def test_criar_funcionario_success(self, repository, mock_db_connection, mock_cursor):
         """Testa criar_funcionario com sucesso"""

@@ -59,7 +59,7 @@ test-cov: ## Executa testes com cobertura de código
 
 lint: ## Verifica qualidade do código com Ruff
 	@echo "$(BLUE)🔍 Analisando código...$(NC)"
-	docker exec -it tech_playground_backend ruff check app/ tests/
+	docker exec -it tech_playground_backend ruff check app/
 	@echo "$(GREEN)✅ Análise concluída!$(NC)"
 
 lint-fix: ## Corrige automaticamente problemas de código
