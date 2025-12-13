@@ -130,7 +130,7 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
 
 - [X] **Task 1**: Create a Basic Database
 - [ ] **Task 2**: Create a Basic Dashboard
-- [ ] **Task 3**: Create a Test Suite
+- [X] **Task 3**: Create a Test Suite
 - [X] **Task 4**: Create a Docker Compose Setup
 - [ ] **Task 5**: Exploratory Data Analysis
 - [ ] **Task 6**: Data Visualization - Company Level
