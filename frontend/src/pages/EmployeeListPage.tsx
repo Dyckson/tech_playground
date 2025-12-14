@@ -77,7 +77,13 @@ const EmployeeListPage = () => {
         params.termo = searchTerm.trim();
       }
 
-      const { data } = await axios.get(endpoint, { params });
+      const { data } = await axios.get(endpoint, { 
+        params,
+        paramsSerializer: {
+          indexes: null, // Envia arrays como param=val1&param=val2
+        }
+      });
+      
       return data;
     },
   });
