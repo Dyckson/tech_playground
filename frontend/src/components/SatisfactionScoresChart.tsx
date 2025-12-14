@@ -86,7 +86,7 @@ const SatisfactionScoresChart: React.FC<SatisfactionScoresChartProps> = ({
         callbacks: {
           label: (context: any) => {
             const value = context.parsed.r || 0;
-            return `Score: ${value.toFixed(2)}/5`;
+            return `Score: ${value.toFixed(2)}/7`;
           },
         },
       },
@@ -94,7 +94,7 @@ const SatisfactionScoresChart: React.FC<SatisfactionScoresChartProps> = ({
     scales: {
       r: {
         beginAtZero: true,
-        max: 5,
+        max: 7,
         min: 0,
         ticks: {
           stepSize: 1,
@@ -121,7 +121,7 @@ const SatisfactionScoresChart: React.FC<SatisfactionScoresChartProps> = ({
         </Box>
         <Box sx={{ mt: 3 }}>
           <Typography variant="caption" color="text.secondary" display="block" textAlign="center">
-            Escala Likert: 1 (Discordo totalmente) a 5 (Concordo totalmente)
+            Escala: 1 (Discordo totalmente) a 7 (Concordo totalmente)
           </Typography>
         </Box>
       </CardContent>

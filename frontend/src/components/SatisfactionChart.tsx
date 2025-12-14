@@ -55,9 +55,9 @@ const SatisfactionChart = () => {
     scales: {
       r: {
         beginAtZero: true,
-        max: 10,
+        max: 7,
         ticks: {
-          stepSize: 2,
+          stepSize: 1,
         },
       },
     },

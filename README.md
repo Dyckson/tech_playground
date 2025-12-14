@@ -58,15 +58,17 @@ This section explains key concepts related to the dataset to ensure you have a c
 
 ### 1. **Likert Scale**
 
-The Likert scale is a common way to measure attitudes or opinions. Respondents are typically asked to rate their agreement or disagreement with a statement on a scale (we use a range from 1 to 5). For example:
+The Likert scale is a common way to measure attitudes or opinions. Respondents are typically asked to rate their agreement or disagreement with a statement on a scale (we use a range from 1 to 7). For example:
 
 - 1: Strongly Disagree
 - 2: Disagree
-- 3: Neutral
-- 4: Agree
-- 5: Strongly Agree
+- 3: Somewhat Disagree
+- 4: Neutral
+- 5: Somewhat Agree
+- 6: Agree
+- 7: Strongly Agree
 
-In this dataset, Likert scales are used to capture feedback on various aspects, such as career clarity, manager interaction, and learning opportunities.
+In this dataset, 7-point Likert scales are used to capture feedback on various aspects, such as career clarity, manager interaction, and learning opportunities.
 
 ---
 
@@ -74,10 +76,10 @@ In this dataset, Likert scales are used to capture feedback on various aspects, 
 
 Favorability measures the percentage of positive responses to a survey question. For example:
 
-- On a 5-point Likert scale:
-  - Responses of 4 (Agree) and 5 (Strongly Agree) are considered favorable.
-  - Responses of 3 (Neutral) are considered neutral.
-  - Responses of 1 (Strongly Disagree) and 2 (Disagree) are considered unfavorable.
+- On a 7-point Likert scale:
+  - Responses of 6 (Agree) and 7 (Strongly Agree) are considered favorable.
+  - Responses of 4-5 are considered neutral.
+  - Responses of 1-3 are considered unfavorable.
 
 Favorability helps identify areas where employees feel positively about their experience.
 
@@ -85,13 +87,13 @@ Favorability helps identify areas where employees feel positively about their ex
 
 ### 3. **Net Promoter Score (NPS)**
 
-NPS is a metric used to measure loyalty and satisfaction, often represented as a single number between -100 and 100. It is based on responses to the question:
-*"On a scale from 0 to 10, how likely are you to recommend this company as a great place to work?"*
+NPS is a metric used to measure loyalty and satisfaction, often represented as a single number between -100 and 100. In this dataset, we use a 7-point scale adaptation of eNPS based on the question:
+*"How likely are you to recommend this company as a great place to work?"*
 
 - Respondents are categorized as:
-  - **Promoters** (9-10): Loyal enthusiasts who will recommend the company.
-  - **Passives** (7-8): Neutral respondents.
-  - **Detractors** (0-6): Unhappy respondents who may discourage others.
+  - **Promoters** (6-7): Loyal enthusiasts who will recommend the company.
+  - **Passives** (5): Neutral respondents.
+  - **Detractors** (1-4): Unhappy respondents who may discourage others.
 - **Calculation**:
 
 ```
@@ -133,13 +135,22 @@ Select the tasks you wish to complete by marking them with an `X` in the `[ ]` b
 - [X] **Task 3**: Create a Test Suite
 - [X] **Task 4**: Create a Docker Compose Setup
 - [ ] **Task 5**: Exploratory Data Analysis
-- [ ] **Task 6**: Data Visualization - Company Level
+- [X] **Task 6**: Data Visualization - Company Level
 - [ ] **Task 7**: Data Visualization - Area Level
-- [ ] **Task 8**: Data Visualization - Employee Level
+- [X] **Task 8**: Data Visualization - Employee Level
 - [X] **Task 9**: Build a Simple API
 - [ ] **Task 10**: Sentiment Analysis
 - [ ] **Task 11**: Report Generation
 - [ ] **Task 12**: Creative Exploration
+
+### **Implementation Notes**
+
+This implementation uses the complete dataset from `data.csv` (500 employees) with a normalized PostgreSQL database schema. The system is containerized with Docker Compose and includes:
+
+- **Backend**: FastAPI REST API with 161 tests (94.64% coverage)
+- **Frontend**: React + TypeScript dashboard with Material-UI
+- **Database**: PostgreSQL with proper normalization and migrations
+- **Scale**: All metrics use a 7-point Likert scale (1-7) adapted from the original data
 
 ---
 

@@ -54,8 +54,8 @@ app = FastAPI(
     - 📈 **Analytics**: Cálculos de eNPS, favorabilidade e insights
 
     ### Métricas:
-    - **eNPS**: Employee Net Promoter Score (-100 a +100)
-    - **Favorabilidade**: % de respostas positivas (4-5 em escala Likert 1-5)
+    - **eNPS**: Employee Net Promoter Score (-100 a +100) - Escala 1-7: Promotores (6-7), Neutros (5), Detratores (1-4)
+    - **Favorabilidade**: % de respostas positivas (6-7 em escala Likert 1-7)
     - **Insights**: Análise de comentários e tendências
     """,
     version=settings.API_VERSION,

@@ -39,21 +39,23 @@ class AnalyticsRepository(BaseRepository):
                 SELECT 
                     rd.valor_resposta,
                     CASE 
-                        WHEN rd.valor_resposta <= 6 THEN 'detratores'
-                        WHEN rd.valor_resposta BETWEEN 7 AND 8 THEN 'neutros'
-                        WHEN rd.valor_resposta >= 9 THEN 'promotores'
+                        WHEN rd.valor_resposta <= 4 THEN 'detratores'
+                        WHEN rd.valor_resposta = 5 THEN 'neutros'
+                        WHEN rd.valor_resposta >= 6 THEN 'promotores'
                     END as categoria
                 FROM resposta_dimensao rd
                 JOIN avaliacao av ON av.id_avaliacao = rd.id_avaliacao
                 JOIN dimensao_avaliacao da ON da.id_dimensao_avaliacao = rd.id_dimensao_avaliacao
                 {empresa_filter}
-                AND da.nome_dimensao = 'Expectativa de Permanência (eNPS)'
+                AND (da.nome_dimensao = 'Expectativa de Permanência (eNPS)' 
+                     OR da.nome_dimensao = 'Expectativa de Permanência')
             )
             SELECT 
                 categoria,
                 COUNT(*) as quantidade,
                 ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) as percentual
             FROM enps_data
+            WHERE categoria IS NOT NULL
             GROUP BY categoria
             ORDER BY 
                 CASE categoria 

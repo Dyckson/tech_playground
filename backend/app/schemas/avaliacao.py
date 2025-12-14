@@ -12,7 +12,7 @@ from .funcionario import FuncionarioResponse
 
 class DimensaoRespostaBase(BaseModel):
     dimensao_avaliacao_id: UUID
-    valor_resposta: int = Field(..., ge=0, le=10)
+    valor_resposta: int = Field(..., ge=1, le=7, description="Escala de 1 a 7")
     comentario: str | None = None
 
 
