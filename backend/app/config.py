@@ -25,7 +25,11 @@ class Settings(BaseSettings):
     DB_NAME: str = "tech_playground"
 
     # CORS
-    ALLOWED_ORIGINS: list[str] = ["*"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://frontend:3000",
+    ]
 
     @property
     def database_url(self) -> str:

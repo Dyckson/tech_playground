@@ -16,12 +16,13 @@ help: ## Mostra esta mensagem de ajuda
 
 # ==================== DOCKER ====================
 
-run: ## Sobe todos os containers do projeto
+up: ## Sobe todos os containers do projeto
 	@echo "$(GREEN)🚀 Subindo containers...$(NC)"
 	docker-compose up -d
 	@echo "$(GREEN)✅ Containers ativos!$(NC)"
 	@echo "$(BLUE)📊 Backend: http://localhost:9876$(NC)"
 	@echo "$(BLUE)📊 Docs API: http://localhost:9876/docs$(NC)"
+	@echo "$(BLUE)🎨 Frontend: http://localhost:3000$(NC)"
 
 down: ## Para e remove todos os containers
 	@echo "$(YELLOW)🛑 Parando containers...$(NC)"

@@ -5,7 +5,7 @@ Centraliza o registro de todas as rotas da API
 
 from fastapi import APIRouter
 
-from app.controllers import funcionario_controller, hierarquia_controller
+from app.controllers import analytics_controller, funcionario_controller, hierarquia_controller
 
 
 def register_routes(app) -> None:
@@ -23,6 +23,9 @@ def register_routes(app) -> None:
 
     # Funcionários
     api_router.include_router(funcionario_controller.router, prefix="/funcionarios", tags=["Funcionários"])
+
+    # Analytics
+    api_router.include_router(analytics_controller.router, prefix="/analytics", tags=["Analytics"])
 
     # Registra o router principal
     app.include_router(api_router)
