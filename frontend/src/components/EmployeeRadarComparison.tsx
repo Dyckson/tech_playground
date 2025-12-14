@@ -123,17 +123,70 @@ const EmployeeRadarComparison: React.FC<EmployeeRadarComparisonProps> = ({ compa
             size="small"
           />
           <Chip
-            label={`Média Funcionário: ${avgEmployeeScore.toFixed(2)}`}
+            label={`Média Funcionário: ${avgEmployeeScore.toFixed(2)}/7`}
             color="primary"
             size="small"
             variant="outlined"
           />
           <Chip
-            label={`Média Empresa: ${avgCompanyScore.toFixed(2)}`}
+            label={`Média Empresa: ${avgCompanyScore.toFixed(2)}/7`}
             color="success"
             size="small"
             variant="outlined"
           />
+        </Box>
+
+        {/* Pontos Fortes e Fracos */}
+        <Box sx={{ mb: 2 }}>
+          {(() => {
+            const sortedByDiff = [...comparison]
+              .filter((item) => item.diff_company !== null)
+              .sort((a, b) => (b.diff_company || 0) - (a.diff_company || 0));
+            
+            const strongPoints = sortedByDiff.slice(0, 2).filter((item) => (item.diff_company || 0) > 0);
+            const weakPoints = sortedByDiff.slice(-2).filter((item) => (item.diff_company || 0) < -0.3);
+
+            return (
+              <>
+                {strongPoints.length > 0 && (
+                  <Box sx={{ mb: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'success.main', display: 'block', mb: 0.5 }}>
+                      🌟 Pontos Fortes (acima da empresa):
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                      {strongPoints.map((item) => (
+                        <Chip
+                          key={item.dimensao}
+                          label={`${item.dimensao}: +${item.diff_company?.toFixed(1)}`}
+                          size="small"
+                          color="success"
+                          variant="outlined"
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+                {weakPoints.length > 0 && (
+                  <Box>
+                    <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'error.main', display: 'block', mb: 0.5 }}>
+                      ⚠️ Pontos de Atenção (abaixo da empresa):
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                      {weakPoints.map((item) => (
+                        <Chip
+                          key={item.dimensao}
+                          label={`${item.dimensao}: ${item.diff_company?.toFixed(1)}`}
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+              </>
+            );
+          })()}
         </Box>
 
         <Box sx={{ height: 400 }}>
@@ -141,7 +194,7 @@ const EmployeeRadarComparison: React.FC<EmployeeRadarComparisonProps> = ({ compa
         </Box>
 
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
-          {comparison.length} dimensões avaliadas
+          {comparison.length} dimensões avaliadas · Escala: 1 (Discordo totalmente) a 7 (Concordo totalmente)
         </Typography>
       </CardContent>
     </Card>

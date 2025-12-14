@@ -44,6 +44,10 @@ class FuncionarioResponse(FuncionarioBase):
     genero_nome: str | None = None
     geracao_nome: str | None = None
     tempo_empresa_nome: str | None = None
+    
+    # Scores e eNPS
+    score_medio_geral: float | None = Field(None, description="Score médio geral das 7 dimensões (1-7)")
+    expectativa_permanencia: float | None = Field(None, description="Score de expectativa de permanência (1-7)")
 
     class Config:
         from_attributes = True

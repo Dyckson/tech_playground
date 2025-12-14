@@ -20,10 +20,27 @@ class FuncionarioService:
         areas: list[UUID] | None = None,
         cargos: list[UUID] | None = None,
         localidades: list[UUID] | None = None,
+        tempo_casa: list[UUID] | None = None,
+        score_min: float | None = None,
+        score_max: float | None = None,
+        enps_status: str | None = None,
+        order_by: str = "nome",
+        order_dir: str = "asc",
     ) -> FuncionarioPaginada:
         """Lista funcionários com paginação e filtros"""
         funcionarios_data, total = self.repository.get_funcionarios_paginado(
-            empresa_id=empresa_id, page=page, page_size=page_size, areas=areas, cargos=cargos, localidades=localidades
+            empresa_id=empresa_id,
+            page=page,
+            page_size=page_size,
+            areas=areas,
+            cargos=cargos,
+            localidades=localidades,
+            tempo_casa=tempo_casa,
+            score_min=score_min,
+            score_max=score_max,
+            enps_status=enps_status,
+            order_by=order_by,
+            order_dir=order_dir,
         )
 
         funcionarios = [FuncionarioResponse(**func) for func in funcionarios_data]
@@ -45,6 +62,12 @@ class FuncionarioService:
         areas: list[UUID] | None = None,
         cargos: list[UUID] | None = None,
         localidades: list[UUID] | None = None,
+        tempo_casa: list[UUID] | None = None,
+        score_min: float | None = None,
+        score_max: float | None = None,
+        enps_status: str | None = None,
+        order_by: str = "nome",
+        order_dir: str = "asc",
     ) -> FuncionarioPaginada:
         """Busca funcionários por nome ou email"""
         funcionarios_data, total = self.repository.buscar_funcionarios(
@@ -55,6 +78,12 @@ class FuncionarioService:
             areas=areas,
             cargos=cargos,
             localidades=localidades,
+            tempo_casa=tempo_casa,
+            score_min=score_min,
+            score_max=score_max,
+            enps_status=enps_status,
+            order_by=order_by,
+            order_dir=order_dir,
         )
 
         funcionarios = [FuncionarioResponse(**func) for func in funcionarios_data]

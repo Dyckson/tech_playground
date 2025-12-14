@@ -25,27 +25,49 @@ async def listar_funcionarios(
     areas: list[UUID] | None = Query(None),
     cargos: list[UUID] | None = Query(None),
     localidades: list[UUID] | None = Query(None),
-    cargo: str | None = Query(None),
+    tempo_casa: list[UUID] | None = Query(None),
+    score_min: float | None = Query(None, ge=1, le=7),
+    score_max: float | None = Query(None, ge=1, le=7),
+    enps_status: str | None = Query(None, pattern="^(promotor|neutro|detrator)$"),
+    order_by: str = Query("nome", pattern="^(nome|cargo|area|tempo|score)$"),
+    order_dir: str = Query("asc", pattern="^(asc|desc)$"),
     service: FuncionarioService = Depends(get_funcionario_service),
 ):
-    """Lista funcionários com paginação e filtros"""
+    """Lista funcionários com paginação e filtros avançados"""
     return service.listar_funcionarios(
-        empresa_id=empresa_id, page=page, page_size=page_size, areas=areas, cargos=cargos, localidades=localidades
+        empresa_id=empresa_id,
+        page=page,
+        page_size=page_size,
+        areas=areas,
+        cargos=cargos,
+        localidades=localidades,
+        tempo_casa=tempo_casa,
+        score_min=score_min,
+        score_max=score_max,
+        enps_status=enps_status,
+        order_by=order_by,
+        order_dir=order_dir,
     )
 
 
 @router.get("/buscar", response_model=FuncionarioPaginada)
 async def buscar_funcionarios(
-    termo: str = Query(..., min_length=3),
+    termo: str = Query(..., min_length=2),
     empresa_id: UUID | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     areas: list[UUID] | None = Query(None),
     cargos: list[UUID] | None = Query(None),
     localidades: list[UUID] | None = Query(None),
+    tempo_casa: list[UUID] | None = Query(None),
+    score_min: float | None = Query(None, ge=1, le=7),
+    score_max: float | None = Query(None, ge=1, le=7),
+    enps_status: str | None = Query(None, pattern="^(promotor|neutro|detrator)$"),
+    order_by: str = Query("nome", pattern="^(nome|cargo|area|tempo|score)$"),
+    order_dir: str = Query("asc", pattern="^(asc|desc)$"),
     service: FuncionarioService = Depends(get_funcionario_service),
 ):
-    """Busca funcionários por nome ou email"""
+    """Busca funcionários por nome ou email com filtros avançados"""
     return service.buscar_funcionarios(
         empresa_id=empresa_id,
         termo=termo,
@@ -54,6 +76,12 @@ async def buscar_funcionarios(
         areas=areas,
         cargos=cargos,
         localidades=localidades,
+        tempo_casa=tempo_casa,
+        score_min=score_min,
+        score_max=score_max,
+        enps_status=enps_status,
+        order_by=order_by,
+        order_dir=order_dir,
     )
 
 
