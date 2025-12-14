@@ -74,6 +74,35 @@ async def obter_funcionario(funcionario_id: UUID, service: FuncionarioService = 
     return funcionario
 
 
+@router.get("/{funcionario_id}/detailed-profile")
+async def obter_perfil_detalhado(funcionario_id: UUID, service: FuncionarioService = Depends(get_funcionario_service)):
+    """
+    Obtém perfil detalhado do funcionário com analytics completo
+    
+    Inclui:
+    - Dados básicos do funcionário
+    - Comparação de scores (funcionário vs empresa vs área)
+    - Histórico de avaliações
+    - Comentários detalhados por dimensão
+    - Análise de diferenças e tendências
+    """
+    from app.services.analytics_service import AnalyticsService
+    
+    # Buscar dados básicos do funcionário
+    funcionario = service.obter_funcionario(funcionario_id)
+    if not funcionario:
+        raise HTTPException(status_code=404, detail="Funcionário não encontrado")
+    
+    # Buscar analytics detalhado
+    analytics_service = AnalyticsService()
+    analytics = analytics_service.get_employee_detailed_profile(funcionario_id)
+    
+    return {
+        "employee": funcionario,
+        "analytics": analytics,
+    }
+
+
 @router.post("", status_code=201)
 async def criar_funcionario(
     funcionario: FuncionarioCreate, service: FuncionarioService = Depends(get_funcionario_service)

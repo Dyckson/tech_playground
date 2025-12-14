@@ -4,6 +4,7 @@ import MetricCard from '../components/MetricCard';
 import EnpsChart from '../components/EnpsChart';
 import TenureChart from '../components/TenureChart';
 import SatisfactionChart from '../components/SatisfactionChart';
+import TabNavigation from '../components/TabNavigation';
 import { useEmployees, useEnps, useSatisfactionScores } from '../hooks/useCompanyMetrics';
 
 const Dashboard: React.FC = () => {
@@ -42,6 +43,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <TabNavigation />
+      
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
         <DashboardIcon sx={{ fontSize: 48, color: 'primary.main' }} />
         <Box>

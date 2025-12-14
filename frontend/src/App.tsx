@@ -1,6 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import Dashboard from './pages/Dashboard';
+import EmployeeListPage from './pages/EmployeeListPage';
+import EmployeeDetailPage from './pages/EmployeeDetailPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,10 +29,16 @@ const theme = createTheme({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Dashboard />
-      </ThemeProvider>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/employees" element={<EmployeeListPage />} />
+            <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+          </Routes>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

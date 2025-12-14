@@ -147,3 +147,97 @@ class AnalyticsRepository(BaseRepository):
         """
 
         return self.execute_query(query, tuple(params) if params else ())
+
+    def get_employee_detailed_analytics(self, funcionario_id: UUID) -> dict:
+        """
+        Retorna analytics detalhado de um funcionário individual
+        Inclui: scores por dimensão, comparação com médias, histórico, comentários
+        """
+        # 1. Scores do funcionário por dimensão (última avaliação)
+        query_scores = """
+            SELECT 
+                da.nome_dimensao as dimensao,
+                rd.valor_resposta as score,
+                da.tipo_escala,
+                rd.comentario
+            FROM resposta_dimensao rd
+            JOIN dimensao_avaliacao da ON da.id_dimensao_avaliacao = rd.id_dimensao_avaliacao
+            JOIN avaliacao av ON av.id_avaliacao = rd.id_avaliacao
+            WHERE av.id_funcionario = %s
+            ORDER BY da.ordem_exibicao
+        """
+        employee_scores = self.execute_query(query_scores, (str(funcionario_id),))
+
+        # 2. Médias da empresa (todas dimensões)
+        query_company_avg = """
+            SELECT 
+                da.nome_dimensao as dimensao,
+                ROUND(AVG(rd.valor_resposta), 2) as score_medio
+            FROM dimensao_avaliacao da
+            LEFT JOIN resposta_dimensao rd ON rd.id_dimensao_avaliacao = da.id_dimensao_avaliacao
+            LEFT JOIN avaliacao av ON av.id_avaliacao = rd.id_avaliacao
+            JOIN funcionario f ON f.id_funcionario = av.id_funcionario
+            WHERE f.ativo = true
+            GROUP BY da.nome_dimensao, da.ordem_exibicao
+            ORDER BY da.ordem_exibicao
+        """
+        company_averages = self.execute_query(query_company_avg, ())
+
+        # 3. Médias da área do funcionário
+        query_area_avg = """
+            SELECT 
+                da.nome_dimensao as dimensao,
+                ROUND(AVG(rd.valor_resposta), 2) as score_medio
+            FROM dimensao_avaliacao da
+            LEFT JOIN resposta_dimensao rd ON rd.id_dimensao_avaliacao = da.id_dimensao_avaliacao
+            LEFT JOIN avaliacao av ON av.id_avaliacao = rd.id_avaliacao
+            JOIN funcionario f ON f.id_funcionario = av.id_funcionario
+            WHERE f.ativo = true 
+            AND f.id_area_detalhe = (
+                SELECT id_area_detalhe FROM funcionario WHERE id_funcionario = %s
+            )
+            GROUP BY da.nome_dimensao, da.ordem_exibicao
+            ORDER BY da.ordem_exibicao
+        """
+        area_averages = self.execute_query(query_area_avg, (str(funcionario_id),))
+
+        # 4. Histórico de avaliações (se houver múltiplas)
+        query_history = """
+            SELECT 
+                av.data_avaliacao,
+                av.periodo_avaliacao,
+                av.comentario_geral,
+                COUNT(rd.id_resposta_dimensao) as total_dimensoes,
+                ROUND(AVG(rd.valor_resposta), 2) as score_medio_geral
+            FROM avaliacao av
+            LEFT JOIN resposta_dimensao rd ON rd.id_avaliacao = av.id_avaliacao
+            WHERE av.id_funcionario = %s
+            GROUP BY av.id_avaliacao, av.data_avaliacao, av.periodo_avaliacao, av.comentario_geral
+            ORDER BY av.data_avaliacao DESC
+        """
+        history = self.execute_query(query_history, (str(funcionario_id),))
+
+        # 5. Comentários detalhados por dimensão
+        query_comments = """
+            SELECT 
+                da.nome_dimensao as dimensao,
+                rd.valor_resposta as score,
+                rd.comentario,
+                av.data_avaliacao
+            FROM resposta_dimensao rd
+            JOIN dimensao_avaliacao da ON da.id_dimensao_avaliacao = rd.id_dimensao_avaliacao
+            JOIN avaliacao av ON av.id_avaliacao = rd.id_avaliacao
+            WHERE av.id_funcionario = %s
+            AND rd.comentario IS NOT NULL
+            AND rd.comentario != ''
+            ORDER BY av.data_avaliacao DESC, da.ordem_exibicao
+        """
+        comments = self.execute_query(query_comments, (str(funcionario_id),))
+
+        return {
+            "employee_scores": employee_scores,
+            "company_averages": company_averages,
+            "area_averages": area_averages,
+            "history": history,
+            "comments": comments,
+        }
