@@ -67,7 +67,7 @@ const EmployeeRadarComparison: React.FC<EmployeeRadarComparisonProps> = ({ compa
     scales: {
       r: {
         beginAtZero: true,
-        max: 10,
+        max: 7,
         ticks: {
           stepSize: 2,
         },

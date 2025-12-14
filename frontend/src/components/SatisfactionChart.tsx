@@ -69,7 +69,7 @@ const SatisfactionChart = () => {
         callbacks: {
           label: (context: any) => {
             const value = context.parsed.r?.toFixed(2) || '0.00';
-            return `Score: ${value}/10`;
+            return `Score: ${value}/7`;
           },
         },
       },
@@ -77,7 +77,7 @@ const SatisfactionChart = () => {
   };
 
   const scoreGeral = data?.score_geral || 0;
-  const scoreColor = scoreGeral >= 8 ? '#4caf50' : scoreGeral >= 6 ? '#ff9800' : '#f44336';
+  const scoreColor = scoreGeral >= 6 ? '#4caf50' : scoreGeral >= 5 ? '#ff9800' : '#f44336';
 
   return (
     <Card elevation={3}>
@@ -90,15 +90,20 @@ const SatisfactionChart = () => {
             {scoreGeral.toFixed(2)}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Score Geral (0-10)
+            Score Geral (1-7)
           </Typography>
         </Box>
         <Box sx={{ height: 300 }}>
           <Radar data={chartData} options={options} />
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
-          {data?.total_dimensoes || 0} dimensões avaliadas
-        </Typography>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="caption" color="text.secondary" display="block">
+            {data?.total_dimensoes || 0} dimensões avaliadas
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            Escala: 1 (Discordo totalmente) a 7 (Concordo totalmente)
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );

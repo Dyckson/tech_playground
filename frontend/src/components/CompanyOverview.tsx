@@ -37,7 +37,7 @@ const CompanyOverview: React.FC<CompanyOverviewProps> = ({ metrics, isLoading })
     },
     {
       title: 'Satisfação Média',
-      value: `${metrics.satisfactionAverage.toFixed(1)}/10`,
+      value: `${metrics.satisfactionAverage.toFixed(1)}/7`,
       icon: <StarIcon fontSize="large" />,
       color: 'info.main',
     },

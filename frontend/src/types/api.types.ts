@@ -80,7 +80,7 @@ export interface EnpsDistribution {
   passives: number;  // 7-8
   detractors: number; // 0-6
   score: number; // NPS calculation
-  distribution: { score: number; count: number }[]; // 0-10 distribution
+  distribution: { score: number; count: number }[]; // 1-7 distribution
 }
 
 export interface TenureDistribution {

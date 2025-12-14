@@ -115,7 +115,7 @@ const EmployeeDetailPage = () => {
                                 {item.periodo_avaliacao || 'Avaliação'}
                               </Typography>
                               <Chip
-                                label={`Score: ${item.score_medio_geral || 0}/10`}
+                                label={`Score: ${item.score_medio_geral || 0}/7`}
                                 size="small"
                                 color="primary"
                               />
@@ -173,7 +173,7 @@ const EmployeeDetailPage = () => {
                               <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
                                 {comment.dimensao}
                               </Typography>
-                              <Chip label={`${comment.score}/10`} size="small" color="secondary" />
+                              <Chip label={`${comment.score}/7`} size="small" color="secondary" />
                             </Box>
                           }
                           secondary={
