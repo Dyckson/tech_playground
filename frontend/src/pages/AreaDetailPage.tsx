@@ -72,6 +72,8 @@ const AreaDetailPage: React.FC = () => {
   const { id: areaId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  console.log('🆔 Area ID da URL:', areaId);
+
   const { data: areaDetails, isLoading: detailsLoading, error: detailsError } = useAreaDetails(areaId);
   const { data: metrics, isLoading: metricsLoading } = useAreaMetrics(areaId);
 
@@ -122,7 +124,12 @@ const AreaDetailPage: React.FC = () => {
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <TabNavigation />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-          <CircularProgress />
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              Carregando dados da área...
+            </Typography>
+          </Box>
         </Box>
       </Container>
     );
@@ -248,6 +255,18 @@ const AreaDetailPage: React.FC = () => {
         </Typography>
       </Box>
 
+      {metrics?.total_funcionarios === 0 && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Esta área não possui funcionários cadastrados no momento.
+        </Alert>
+      )}
+
+      {metrics && metrics.total_funcionarios > 0 && !metrics.score_medio && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Os funcionários desta área ainda não possuem avaliações registradas. As métricas de eNPS e Satisfação serão calculadas assim que as avaliações forem concluídas.
+        </Alert>
+      )}
+
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
@@ -262,20 +281,24 @@ const AreaDetailPage: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="eNPS da Área"
-            value={enpsScore !== null ? (enpsScore > 0 ? `+${enpsScore}` : enpsScore) : 'N/A'}
+            value={enpsScore !== null ? (enpsScore > 0 ? `+${enpsScore}` : enpsScore) : 'Calculando...'}
             icon={<SentimentIcon sx={{ fontSize: 32, color: enpsColor }} />}
             color={enpsColor}
-            subtitle={`${metrics?.promotores || 0} promotores / ${metrics?.detratores || 0} detratores`}
+            subtitle={
+              metrics?.promotores || metrics?.detratores
+                ? `${metrics?.promotores || 0} promotores / ${metrics?.detratores || 0} detratores`
+                : 'Aguardando avaliações'
+            }
           />
         </Grid>
 
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Satisfação Média"
-            value={metrics?.score_medio ? metrics.score_medio.toFixed(2) : 'N/A'}
+            value={metrics?.score_medio ? metrics.score_medio.toFixed(2) : 'Calculando...'}
             icon={<TrendingUpIcon sx={{ fontSize: 32, color: scoreColor }} />}
             color={scoreColor}
-            subtitle="Score geral (1-7)"
+            subtitle={metrics?.score_medio ? 'Score geral (1-7)' : 'Aguardando avaliações'}
           />
         </Grid>
 

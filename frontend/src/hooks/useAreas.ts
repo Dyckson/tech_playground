@@ -129,22 +129,30 @@ export const useAreaMetrics = (areaId?: string) => {
     queryFn: async () => {
       if (!areaId) throw new Error('ID da área é obrigatório');
       
-      // Busca funcionários da área
-      const { data: funcionariosData } = await axios.get(
-        `${API_BASE_URL}/funcionarios`,
-        {
-          params: {
-            areas: [areaId],
-            page: 1,
-            page_size: 1000, // Buscar todos para calcular métricas
-          },
-          paramsSerializer: {
-            indexes: null,
-          },
-        }
-      );
+      // Buscar todos os funcionários da área com paginação incremental
+      // Backend tem limite máximo de 100 items por página (le=100 no controller)
+      let allFuncionarios: any[] = [];
+      let page = 1;
+      let hasMore = true;
+      
+      while (hasMore) {
+        const { data: funcionariosData } = await axios.get(
+          `${API_BASE_URL}/funcionarios`,
+          {
+            params: {
+              areas: areaId,
+              page,
+              page_size: 100, // Respeita limite máximo do backend
+            },
+          }
+        );
+        
+        allFuncionarios = [...allFuncionarios, ...funcionariosData.items];
+        hasMore = funcionariosData.items.length === 100;
+        page++;
+      }
 
-      const funcionarios = funcionariosData.items;
+      const funcionarios = allFuncionarios;
       const total_funcionarios = funcionarios.length;
 
       if (total_funcionarios === 0) {
@@ -158,7 +166,7 @@ export const useAreaMetrics = (areaId?: string) => {
         };
       }
 
-      // Calcular eNPS
+      // Calcular eNPS e scores
       let promotores = 0;
       let neutros = 0;
       let detratores = 0;
@@ -166,15 +174,27 @@ export const useAreaMetrics = (areaId?: string) => {
       let countScores = 0;
 
       funcionarios.forEach((func: any) => {
+        // eNPS baseado na expectativa_permanencia (escala 1-7)
         const expectativa = func.expectativa_permanencia;
-        if (expectativa !== null && expectativa !== undefined) {
-          if (expectativa >= 6) promotores++;
-          else if (expectativa === 5) neutros++;
-          else detratores++;
+        // Verificar se não é null/undefined/0 (0 significa sem avaliação no backend antigo)
+        if (expectativa != null && expectativa > 0) {
+          // Convertendo escala 1-7 para lógica eNPS:
+          // 6-7 = Promotores
+          // 5 = Neutros  
+          // 1-4 = Detratores
+          if (expectativa >= 6) {
+            promotores++;
+          } else if (expectativa === 5) {
+            neutros++;
+          } else if (expectativa >= 1) {
+            detratores++;
+          }
         }
 
+        // Score médio geral
         const score = func.score_medio_geral;
-        if (score !== null && score !== undefined) {
+        // Verificar se não é null/undefined/0 (0 significa sem avaliação no backend antigo)
+        if (score != null && score > 0) {
           somaScores += score;
           countScores++;
         }

@@ -223,43 +223,42 @@ class FuncionarioRepository(BaseRepository):
             tempo_casa_filter = " AND f.id_tempo_empresa_catgo IN (" + ",".join(["%s"] * len(tempo_casa)) + ")"
             params_list.extend([str(tc) for tc in tempo_casa])
 
-        # Filtros de score e eNPS
-        score_subquery = ""
-        if score_min is not None or score_max is not None or enps_status:
-            score_subquery = """
-                LEFT JOIN (
-                    SELECT 
-                        av.id_funcionario,
-                        AVG((r1.valor_resposta + r2.valor_resposta + r3.valor_resposta + 
-                             r4.valor_resposta + r5.valor_resposta + r6.valor_resposta + 
-                             r7.valor_resposta) / 7.0) as score_medio_geral,
-                        AVG(r7.valor_resposta) as expectativa_permanencia
-                    FROM avaliacao av
-                    JOIN resposta_dimensao r1 ON r1.id_avaliacao = av.id_avaliacao AND r1.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Interesse no Cargo')
-                    JOIN resposta_dimensao r2 ON r2.id_avaliacao = av.id_avaliacao AND r2.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Contribuição')
-                    JOIN resposta_dimensao r3 ON r3.id_avaliacao = av.id_avaliacao AND r3.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Aprendizado e Desenvolvimento')
-                    JOIN resposta_dimensao r4 ON r4.id_avaliacao = av.id_avaliacao AND r4.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Feedback')
-                    JOIN resposta_dimensao r5 ON r5.id_avaliacao = av.id_avaliacao AND r5.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Interação com Gestor')
-                    JOIN resposta_dimensao r6 ON r6.id_avaliacao = av.id_avaliacao AND r6.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Clareza sobre Possibilidades de Carreira')
-                    JOIN resposta_dimensao r7 ON r7.id_avaliacao = av.id_avaliacao AND r7.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Expectativa de Permanência')
-                    GROUP BY av.id_funcionario
-                ) scores ON scores.id_funcionario = f.id_funcionario
-            """
-            
-            if score_min is not None:
-                score_filter += " AND scores.score_medio_geral >= %s"
-                params_list.append(score_min)
-            if score_max is not None:
-                score_filter += " AND scores.score_medio_geral <= %s"
-                params_list.append(score_max)
-            
-            if enps_status:
-                if enps_status == "promotor":
-                    enps_filter = " AND scores.expectativa_permanencia >= 6"
-                elif enps_status == "neutro":
-                    enps_filter = " AND scores.expectativa_permanencia = 5"
-                elif enps_status == "detrator":
-                    enps_filter = " AND scores.expectativa_permanencia <= 4"
+        # Sempre incluir subquery de scores para retornar métricas
+        score_subquery = """
+            LEFT JOIN (
+                SELECT 
+                    av.id_funcionario,
+                    AVG((r1.valor_resposta + r2.valor_resposta + r3.valor_resposta + 
+                         r4.valor_resposta + r5.valor_resposta + r6.valor_resposta + 
+                         r7.valor_resposta) / 7.0) as score_medio_geral,
+                    AVG(r7.valor_resposta) as expectativa_permanencia
+                FROM avaliacao av
+                JOIN resposta_dimensao r1 ON r1.id_avaliacao = av.id_avaliacao AND r1.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Interesse no Cargo')
+                JOIN resposta_dimensao r2 ON r2.id_avaliacao = av.id_avaliacao AND r2.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Contribuição')
+                JOIN resposta_dimensao r3 ON r3.id_avaliacao = av.id_avaliacao AND r3.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Aprendizado e Desenvolvimento')
+                JOIN resposta_dimensao r4 ON r4.id_avaliacao = av.id_avaliacao AND r4.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Feedback')
+                JOIN resposta_dimensao r5 ON r5.id_avaliacao = av.id_avaliacao AND r5.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Interação com Gestor')
+                JOIN resposta_dimensao r6 ON r6.id_avaliacao = av.id_avaliacao AND r6.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Clareza sobre Possibilidades de Carreira')
+                JOIN resposta_dimensao r7 ON r7.id_avaliacao = av.id_avaliacao AND r7.id_dimensao_avaliacao = (SELECT id_dimensao_avaliacao FROM dimensao_avaliacao WHERE nome_dimensao = 'Expectativa de Permanência')
+                GROUP BY av.id_funcionario
+            ) scores ON scores.id_funcionario = f.id_funcionario
+        """
+        
+        # Aplicar filtros condicionais sobre os scores
+        if score_min is not None:
+            score_filter += " AND scores.score_medio_geral >= %s"
+            params_list.append(score_min)
+        if score_max is not None:
+            score_filter += " AND scores.score_medio_geral <= %s"
+            params_list.append(score_max)
+        
+        if enps_status:
+            if enps_status == "promotor":
+                enps_filter = " AND scores.expectativa_permanencia >= 6"
+            elif enps_status == "neutro":
+                enps_filter = " AND scores.expectativa_permanencia = 5"
+            elif enps_status == "detrator":
+                enps_filter = " AND scores.expectativa_permanencia <= 4"
 
         search_pattern = f"%{termo_busca}%"
         params_list.append(search_pattern)
@@ -317,8 +316,8 @@ class FuncionarioRepository(BaseRepository):
                 gen.nome_genero as genero_nome,
                 ger.nome_geracao as geracao_nome,
                 t.nome_tempo_empresa as tempo_empresa_nome,
-                COALESCE(scores.score_medio_geral, 0) as score_medio_geral,
-                COALESCE(scores.expectativa_permanencia, 0) as expectativa_permanencia
+                scores.score_medio_geral,
+                scores.expectativa_permanencia
             FROM funcionario f
             LEFT JOIN (
                 SELECT 
