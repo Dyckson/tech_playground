@@ -42,6 +42,7 @@ const EmployeeListPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState<OrderBy>('nome');
   const [orderDir, setOrderDir] = useState<OrderDir>('asc');
+  const [isExporting, setIsExporting] = useState(false);
   const [filters, setFilters] = useState<FilterValues>({
     cargos: [],
     areas: [],
@@ -129,30 +130,84 @@ const EmployeeListPage = () => {
     setPage(0);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!data?.items) return;
+    
+    setIsExporting(true);
+    
+    try {
+      // Buscar TODOS os funcionários com os mesmos filtros
+      const params: any = {
+        page: 1,
+        page_size: 100, // Máximo permitido pelo backend
+        order_by: orderBy,
+        order_dir: orderDir,
+      };
 
-    const headers = ['Nome', 'Email', 'Cargo', 'Área', 'Tempo de Casa', 'Score Geral', 'Status eNPS'];
-    const rows = filteredEmployees.map((emp: any) => [
-      emp.nome,
-      emp.email,
-      emp.cargo_nome || '-',
-      emp.area_nome || '-',
-      emp.tempo_empresa_nome || '-',
-      emp.score_medio_geral ? emp.score_medio_geral.toFixed(2) : '-',
-      getEnpsStatus(emp.expectativa_permanencia),
-    ]);
+      // Aplicar os mesmos filtros ativos
+      if (filters.cargos.length > 0) params.cargos = filters.cargos;
+      if (filters.areas.length > 0) params.areas = filters.areas;
+      if (filters.temposCasa.length > 0) params.tempo_casa = filters.temposCasa;
+      if (filters.scoreMin) params.score_min = parseFloat(filters.scoreMin);
+      if (filters.scoreMax) params.score_max = parseFloat(filters.scoreMax);
+      if (filters.enpsStatus) params.enps_status = filters.enpsStatus;
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row: string[]) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
+      const endpoint = searchTerm.trim().length >= 2 
+        ? 'http://localhost:9876/api/v1/funcionarios/buscar'
+        : 'http://localhost:9876/api/v1/funcionarios';
+      
+      if (searchTerm.trim().length >= 2) {
+        params.termo = searchTerm.trim();
+      }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `funcionarios_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+      // Loop para buscar todas as páginas
+      let allEmployees: any[] = [];
+      let currentPage = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data: pageData } = await axios.get(endpoint, { 
+          params: { ...params, page: currentPage },
+          paramsSerializer: {
+            indexes: null,
+          }
+        });
+        
+        allEmployees = [...allEmployees, ...pageData.items];
+        hasMore = pageData.items.length === 100; // Se retornou 100, pode ter mais
+        currentPage++;
+      }
+
+      // Gerar CSV com TODOS os funcionários
+      const headers = ['Nome', 'Email', 'Cargo', 'Área', 'Tempo de Casa', 'Score Geral', 'Status eNPS'];
+      const rows = allEmployees.map((emp: any) => [
+        emp.nome,
+        emp.email,
+        emp.cargo_nome || '-',
+        emp.area_nome || '-',
+        emp.tempo_empresa_nome || '-',
+        emp.score_medio_geral ? emp.score_medio_geral.toFixed(2) : '-',
+        getEnpsStatus(emp.expectativa_permanencia),
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map((row: string[]) => row.map((cell) => `"${cell}"`).join(',')),
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `funcionarios_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      
+      console.log(`✅ Exportados ${allEmployees.length} funcionários`);
+    } catch (error) {
+      console.error('❌ Erro ao exportar CSV:', error);
+      alert('Erro ao exportar CSV. Tente novamente.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const getScoreColor = (score: number | null) => {
@@ -205,11 +260,11 @@ const EmployeeListPage = () => {
         </Box>
         <Button
           variant="contained"
-          startIcon={<DownloadIcon />}
+          startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
           onClick={handleExport}
-          disabled={!data?.items || filteredEmployees.length === 0}
+          disabled={!data?.items || filteredEmployees.length === 0 || isExporting}
         >
-          Exportar CSV
+          {isExporting ? 'Exportando...' : 'Exportar CSV'}
         </Button>
       </Box>
 
