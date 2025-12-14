@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Container,
@@ -25,6 +25,8 @@ import EmployeeRadarComparison from '../components/EmployeeRadarComparison';
 const EmployeeDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { from, areaId, areaName } = (location.state || {}) as { from?: string; areaId?: string; areaName?: string };
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['employee-detail', id],
@@ -66,8 +68,12 @@ const EmployeeDetailPage = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Button startIcon={<ArrowBack />} onClick={() => navigate('/employees')} sx={{ mb: 3 }}>
-        Voltar para Funcionários
+      <Button 
+        startIcon={<ArrowBack />} 
+        onClick={() => from === 'area' && areaId ? navigate(`/areas/${areaId}`) : navigate('/employees')} 
+        sx={{ mb: 3 }}
+      >
+        {from === 'area' && areaName ? `Voltar para ${areaName}` : 'Voltar para Funcionários'}
       </Button>
 
       <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 3 }}>

@@ -385,7 +385,13 @@ const AreaDetailPage: React.FC = () => {
                           key={func.id}
                           hover
                           sx={{ cursor: 'pointer' }}
-                          onClick={() => navigate(`/employees/${func.id}`)}
+                          onClick={() => navigate(`/employees/${func.id}`, {
+                            state: { 
+                              from: 'area',
+                              areaId: areaId,
+                              areaName: areaDetails.area 
+                            }
+                          })}
                         >
                           <TableCell>{func.nome}</TableCell>
                           <TableCell>{func.cargo_nome || 'N/A'}</TableCell>
@@ -449,7 +455,13 @@ const AreaDetailPage: React.FC = () => {
                           key={func.id}
                           hover
                           sx={{ cursor: 'pointer' }}
-                          onClick={() => navigate(`/employees/${func.id}`)}
+                          onClick={() => navigate(`/employees/${func.id}`, {
+                            state: { 
+                              from: 'area',
+                              areaId: areaId,
+                              areaName: areaDetails.area 
+                            }
+                          })}
                         >
                           <TableCell>{func.nome}</TableCell>
                           <TableCell>{func.cargo_nome || 'N/A'}</TableCell>
