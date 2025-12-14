@@ -409,52 +409,6 @@ class TestFuncionarioController:
         assert len(data["areas"]) == 1
         assert data["areas"][0]["nome"] == "AWS"
 
-    @pytest.mark.skip(reason="Endpoint POST /funcionarios/criar não existe no sistema atual")
-    def test_criar_funcionario_success(self, client, mock_db_connection, mock_cursor):
-        """Testa POST /api/v1/funcionarios/criar"""
-        # Arrange
-        new_id = "new-funcionario-uuid"
-        mock_cursor.fetchone.return_value = {"id": new_id}
-
-        novo_funcionario = {
-            "nome": "Novo Funcionário",
-            "email": "novo@email.com",
-            "email_corporativo": "novo@empresa.com",
-            "funcao": "CLT",
-            "empresa_id": str(EMPRESA_ID),
-            "area_detalhe_id": str(AREA_ID),
-            "cargo_id": str(CARGO_ID),
-            "genero_id": str(UUID(int=1)),
-            "geracao_id": str(UUID(int=2)),
-            "tempo_empresa_id": str(UUID(int=3)),
-            "localidade_id": str(UUID(int=4)),
-        }
-
-        # Act
-        response = client.post("/api/v1/funcionarios/criar", json=novo_funcionario)
-
-        # Assert
-        assert response.status_code == 201
-        data = response.json()
-        assert data["id"] == new_id
-        assert "message" in data
-
-    @pytest.mark.skip(reason="Endpoint POST /funcionarios/criar não existe no sistema atual")
-    def test_criar_funcionario_validation_error(self, client):
-        """Testa POST /api/v1/funcionarios/criar com dados inválidos"""
-        # Arrange
-        funcionario_invalido = {
-            "nome": "",  # Nome vazio
-            "email": "email-invalido",  # Email inválido
-            "funcao": "CLT",
-        }
-
-        # Act
-        response = client.post("/api/v1/funcionarios/criar", json=funcionario_invalido)
-
-        # Assert
-        assert response.status_code == 422  # Validation error
-
     def test_pagination_validation(self, client, mock_db_connection, mock_cursor):
         """Testa validação de paginação"""
         # Arrange

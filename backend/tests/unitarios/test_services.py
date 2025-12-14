@@ -41,7 +41,18 @@ class TestFuncionarioService:
         assert result.total_pages == 1
         assert len(result.items) == 5
         mock_repository.get_funcionarios_paginado.assert_called_once_with(
-            empresa_id=EMPRESA_ID, page=1, page_size=10, areas=None, cargos=None, localidades=None
+            empresa_id=EMPRESA_ID, 
+            page=1, 
+            page_size=10, 
+            areas=None, 
+            cargos=None, 
+            localidades=None,
+            tempo_casa=None,
+            score_min=None,
+            score_max=None,
+            enps_status=None,
+            order_by='nome',
+            order_dir='asc'
         )
 
     def test_listar_funcionarios_with_filters(self, service, mock_repository, funcionario_data):
@@ -61,7 +72,18 @@ class TestFuncionarioService:
         assert result.total == 1
         assert len(result.items) == 1
         mock_repository.get_funcionarios_paginado.assert_called_once_with(
-            empresa_id=EMPRESA_ID, page=1, page_size=20, areas=areas, cargos=cargos, localidades=localidades
+            empresa_id=EMPRESA_ID, 
+            page=1, 
+            page_size=20, 
+            areas=areas, 
+            cargos=cargos, 
+            localidades=localidades,
+            tempo_casa=None,
+            score_min=None,
+            score_max=None,
+            enps_status=None,
+            order_by='nome',
+            order_dir='asc'
         )
 
     def test_listar_funcionarios_empty(self, service, mock_repository):
