@@ -44,7 +44,6 @@ const TabNavigation: React.FC = () => {
           iconPosition="start"
           label="Áreas"
           value="/areas"
-          disabled
         />
         <Tab
           icon={<GroupIcon />}

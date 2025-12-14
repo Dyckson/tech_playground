@@ -4,6 +4,8 @@ import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import Dashboard from './pages/Dashboard';
 import EmployeeListPage from './pages/EmployeeListPage';
 import EmployeeDetailPage from './pages/EmployeeDetailPage';
+import AreasPage from './pages/AreasPage';
+import AreaDetailPage from './pages/AreaDetailPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +36,8 @@ function App() {
           <CssBaseline />
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/areas" element={<AreasPage />} />
+            <Route path="/areas/:id" element={<AreaDetailPage />} />
             <Route path="/employees" element={<EmployeeListPage />} />
             <Route path="/employees/:id" element={<EmployeeDetailPage />} />
           </Routes>
