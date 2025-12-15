@@ -29,4 +29,24 @@ export const getSatisfactionScores = async () => {
   return data;
 };
 
+// ========== Analytics - Task 7: Area Level ==========
+export const getAreasScoresComparison = async (empresaId?: string) => {
+  const { data } = await api.get('/analytics/areas/scores-comparison', {
+    params: empresaId ? { empresa_id: empresaId } : {},
+  });
+  return data;
+};
+
+export const getAreasEnpsComparison = async (empresaId?: string) => {
+  const { data } = await api.get('/analytics/areas/enps-comparison', {
+    params: empresaId ? { empresa_id: empresaId } : {},
+  });
+  return data;
+};
+
+export const getAreaDetailedMetrics = async (areaId: string) => {
+  const { data } = await api.get(`/analytics/areas/${areaId}/detailed-metrics`);
+  return data;
+};
+
 export default api;

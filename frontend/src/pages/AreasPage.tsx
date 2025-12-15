@@ -22,6 +22,7 @@ import {
   TableSortLabel,
   Tabs,
   Tab,
+  Grid,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -33,6 +34,8 @@ import {
 import TabNavigation from '../components/TabNavigation';
 import AreaMetricsCards from '../components/AreaMetricsCards';
 import AreaHierarchyTree from '../components/AreaHierarchyTree';
+import AreasScoresComparison from '../components/AreasScoresComparison';
+import AreasEnpsComparison from '../components/AreasEnpsComparison';
 import { useAreas, useAreaEmployeeCount, useFirstEmpresa } from '../hooks/useAreas';
 
 type OrderBy = 'area' | 'hierarquia' | 'funcionarios';
@@ -141,6 +144,16 @@ const AreasPage: React.FC = () => {
       <Box sx={{ mb: 4 }}>
         <AreaMetricsCards empresaId={empresaId} />
       </Box>
+
+      {/* Task 7: Data Visualization - Area Level */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} lg={6}>
+          <AreasScoresComparison />
+        </Grid>
+        <Grid item xs={12} lg={6}>
+          <AreasEnpsComparison />
+        </Grid>
+      </Grid>
 
       <Card elevation={3}>
         <CardContent>
