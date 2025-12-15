@@ -96,3 +96,23 @@ def funcionario_id_teste(db_connection) -> str:
     if result:
         return str(result["id_funcionario"])
     return None
+
+
+@pytest.fixture(scope="session")
+def area_id_teste(db_connection) -> str:
+    """
+    Retorna o ID de uma área real do banco para usar nos testes
+    Prioriza áreas que tenham funcionários
+    """
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT DISTINCT ad.id_area_detalhe
+        FROM area_detalhe ad
+        INNER JOIN funcionario f ON f.id_area_detalhe = ad.id_area_detalhe
+        LIMIT 1
+    """)
+    result = cursor.fetchone()
+    cursor.close()
+    if result:
+        return str(result["id_area_detalhe"])
+    return None

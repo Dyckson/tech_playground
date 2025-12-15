@@ -286,3 +286,211 @@ class TestAnalyticsService:
         assert result["history"] == []
         assert result["summary"]["total_evaluations"] == 0
         assert result["comments"] == []
+
+    # ====================
+    # Task 7 - get_areas_scores_comparison - SUCESSO
+    # ====================
+
+    def test_get_areas_scores_comparison_success_with_empresa(self, service, mock_repository):
+        """Testa comparação de scores por área com sucesso"""
+        # Arrange
+        mock_data = [
+            {"id_area_detalhe": "a1", "area_nome": "Vendas", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Dir", "dimensao": "Liderança", "score_medio": 7.5, "total_funcionarios": 10, "total_respostas": 20},
+            {"id_area_detalhe": "a1", "area_nome": "Vendas", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Dir", "dimensao": "Ambiente", "score_medio": 8.0, "total_funcionarios": 10, "total_respostas": 20},
+            {"id_area_detalhe": "a2", "area_nome": "TI", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Dir", "dimensao": "Liderança", "score_medio": 6.5, "total_funcionarios": 15, "total_respostas": 30},
+        ]
+        mock_repository.get_areas_scores_comparison.return_value = mock_data
+
+        # Act
+        result = service.get_areas_scores_comparison(EMPRESA_ID)
+
+        # Assert
+        assert "areas" in result
+        assert len(result["areas"]) == 2  # 2 áreas únicas
+        assert result["areas"][0]["area_nome"] == "Vendas"
+        assert len(result["areas"][0]["dimensoes"]) == 2
+        assert result["areas"][0]["score_medio_geral"] == 7.75  # (7.5 + 8.0) / 2
+        assert result["areas"][1]["area_nome"] == "TI"
+        assert result["areas"][1]["score_medio_geral"] == 6.5
+        mock_repository.get_areas_scores_comparison.assert_called_once_with(EMPRESA_ID)
+
+    def test_get_areas_scores_comparison_success_without_empresa(self, service, mock_repository):
+        """Testa comparação de scores sem filtro de empresa"""
+        # Arrange
+        mock_data = [
+            {"id_area_detalhe": "a3", "area_nome": "RH", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Dir", "dimensao": "Liderança", "score_medio": 8.5, "total_funcionarios": 12, "total_respostas": 24},
+        ]
+        mock_repository.get_areas_scores_comparison.return_value = mock_data
+
+        # Act
+        result = service.get_areas_scores_comparison(None)
+
+        # Assert
+        assert len(result["areas"]) == 1
+        assert result["areas"][0]["score_medio_geral"] == 8.5
+        mock_repository.get_areas_scores_comparison.assert_called_once_with(None)
+
+    def test_get_areas_scores_comparison_empty(self, service, mock_repository):
+        """Testa comparação quando não há dados"""
+        # Arrange
+        mock_repository.get_areas_scores_comparison.return_value = []
+
+        # Act
+        result = service.get_areas_scores_comparison(EMPRESA_ID)
+
+        # Assert
+        assert result["areas"] == []
+
+    # ====================
+    # Task 7 - get_areas_enps_comparison - SUCESSO
+    # ====================
+
+    def test_get_areas_enps_comparison_success(self, service, mock_repository):
+        """Testa comparação de eNPS por área com sucesso"""
+        # Arrange
+        mock_data = [
+            {"id_area_detalhe": "a1", "area_nome": "Marketing", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Comercial", "promotores": 60, "neutros": 30, "detratores": 10, "promotores_percentual": 60.0, "neutros_percentual": 30.0, "detratores_percentual": 10.0, "total_respostas": 100},
+            {"id_area_detalhe": "a2", "area_nome": "Financeiro", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Administrativo", "promotores": 30, "neutros": 40, "detratores": 30, "promotores_percentual": 30.0, "neutros_percentual": 40.0, "detratores_percentual": 30.0, "total_respostas": 100},
+        ]
+        mock_repository.get_areas_enps_comparison.return_value = mock_data
+
+        # Act
+        result = service.get_areas_enps_comparison(EMPRESA_ID)
+
+        # Assert
+        assert "areas" in result
+        assert "melhor_area" in result
+        assert "pior_area" in result
+        assert "enps_medio" in result
+        assert len(result["areas"]) == 2
+        assert result["areas"][0]["enps_score"] == 50.0  # (60 - 10)
+        assert result["areas"][1]["enps_score"] == 0.0  # (30 - 30)
+        assert result["melhor_area"]["area_nome"] == "Marketing"
+        assert result["melhor_area"]["enps_score"] == 50.0
+        assert result["pior_area"]["area_nome"] == "Financeiro"
+        assert result["enps_medio"] == 25.0  # (50 + 0) / 2
+        mock_repository.get_areas_enps_comparison.assert_called_once_with(EMPRESA_ID)
+
+    def test_get_areas_enps_comparison_single_area(self, service, mock_repository):
+        """Testa eNPS quando há apenas uma área"""
+        # Arrange
+        mock_data = [
+            {"id_area_detalhe": "a1", "area_nome": "Única", "nome_coordenacao": "Coord", "nome_gerencia": "Ger", "nome_diretoria": "Geral", "promotores": 70, "neutros": 20, "detratores": 10, "promotores_percentual": 70.0, "neutros_percentual": 20.0, "detratores_percentual": 10.0, "total_respostas": 100}
+        ]
+        mock_repository.get_areas_enps_comparison.return_value = mock_data
+
+        # Act
+        result = service.get_areas_enps_comparison(None)
+
+        # Assert
+        assert len(result["areas"]) == 1
+        assert result["melhor_area"]["area_nome"] == "Única"
+        assert result["pior_area"]["area_nome"] == "Única"
+        assert result["enps_medio"] == 60.0
+
+    def test_get_areas_enps_comparison_empty(self, service, mock_repository):
+        """Testa eNPS quando não há dados"""
+        # Arrange
+        mock_repository.get_areas_enps_comparison.return_value = []
+
+        # Act
+        result = service.get_areas_enps_comparison(EMPRESA_ID)
+
+        # Assert
+        assert result["areas"] == []
+        assert result["melhor_area"] is None
+        assert result["pior_area"] is None
+        assert result["enps_medio"] == 0
+
+    # ====================
+    # Task 7 - get_area_detailed_metrics - SUCESSO
+    # ====================
+
+    def test_get_area_detailed_metrics_success(self, service, mock_repository):
+        """Testa métricas detalhadas de área com sucesso"""
+        # Arrange
+        area_id = "area-123"
+        mock_data = {
+            "area_info": {
+                "area_nome": "Logística",
+                "nome_coordenacao": "Coord Logística",
+                "nome_gerencia": "Ger Operações",
+                "nome_diretoria": "Dir Operações",
+                "total_funcionarios": 25,
+            },
+            "enps": {
+                "promotores": 15,
+                "neutros": 8,
+                "detratores": 2,
+            },
+            "area_scores": [
+                {"dimensao": "Liderança", "score_medio": 7.2, "total_respostas": 20, "total_funcionarios": 25},
+                {"dimensao": "Ambiente", "score_medio": 8.0, "total_respostas": 20, "total_funcionarios": 25},
+            ],
+            "company_averages": [
+                {"dimensao": "Liderança", "score_medio": 6.8},
+                {"dimensao": "Ambiente", "score_medio": 7.5},
+            ],
+        }
+        mock_repository.get_area_detailed_metrics.return_value = mock_data
+
+        # Act
+        result = service.get_area_detailed_metrics(area_id)
+
+        # Assert
+        assert "area_info" in result
+        assert "enps" in result
+        assert "scores_comparison" in result
+        assert result["area_info"]["area_nome"] == "Logística"
+        assert result["enps"]["enps_score"] == 52.0  # (15/25)*100 - (2/25)*100
+        assert result["enps"]["promotores"] == 15
+        assert len(result["scores_comparison"]) == 2
+        mock_repository.get_area_detailed_metrics.assert_called_once_with(area_id)
+
+    def test_get_area_detailed_metrics_no_funcionarios(self, service, mock_repository):
+        """Testa métricas quando área não tem funcionários"""
+        # Arrange
+        area_id = "area-empty"
+        mock_data = {
+            "area_info": {
+                "area_nome": "Nova Área",
+                "nome_coordenacao": "Coord Expansão",
+                "nome_gerencia": "Ger Expansão",
+                "nome_diretoria": "Dir Expansão",
+                "total_funcionarios": 0,
+            },
+            "enps": {
+                "promotores": 0,
+                "neutros": 0,
+                "detratores": 0,
+            },
+            "area_scores": [],
+            "company_averages": [],
+        }
+        mock_repository.get_area_detailed_metrics.return_value = mock_data
+
+        # Act
+        result = service.get_area_detailed_metrics(area_id)
+
+        # Assert
+        assert result["area_info"]["total_funcionarios"] == 0
+        assert result["enps"]["enps_score"] == 0
+        assert len(result["scores_comparison"]) == 0
+
+    def test_get_area_detailed_metrics_area_not_found(self, service, mock_repository):
+        """Testa métricas quando área não existe"""
+        # Arrange
+        area_id = "area-404"
+        mock_data = {
+            "area_info": None,
+            "enps": {"promotores": 0, "neutros": 0, "detratores": 0},
+            "area_scores": [],
+            "company_averages": [],
+        }
+        mock_repository.get_area_detailed_metrics.return_value = mock_data
+
+        # Act
+        result = service.get_area_detailed_metrics(area_id)
+
+        # Assert
+        assert result["area_info"] is None

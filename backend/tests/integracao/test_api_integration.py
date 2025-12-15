@@ -231,3 +231,191 @@ class TestAPIErrorHandling:
         """Testa page_size muito grande"""
         response = api_client.get("/api/v1/funcionarios?page_size=1000")
         assert response.status_code == 422
+
+
+class TestAnalyticsEndpoints:
+    """Testes dos endpoints de analytics (Task 7)"""
+
+    def test_get_enps_success(self, api_client):
+        """Testa obtenção de eNPS geral"""
+        response = api_client.get("/api/v1/analytics/enps")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "enps_score" in data
+        assert "promotores" in data
+        assert "neutros" in data
+        assert "detratores" in data
+        assert "total_respostas" in data
+
+    def test_get_enps_with_empresa_filter(self, api_client, empresa_id_teste):
+        """Testa obtenção de eNPS filtrado por empresa"""
+        if not empresa_id_teste:
+            pytest.skip("Nenhuma empresa encontrada no banco")
+
+        response = api_client.get(f"/api/v1/analytics/enps?id_empresa={empresa_id_teste}")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "enps_score" in data
+        assert isinstance(data["enps_score"], (int, float)) or data["enps_score"] is None
+
+    def test_get_areas_scores_comparison_success(self, api_client):
+        """Testa comparação de scores entre áreas"""
+        response = api_client.get("/api/v1/analytics/areas/scores-comparison")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "areas" in data
+        assert isinstance(data["areas"], list)
+        if len(data["areas"]) > 0:
+            area = data["areas"][0]
+            assert "area_id" in area
+            assert "area_nome" in area
+            assert "coordenacao" in area
+            assert "dimensoes" in area
+
+    def test_get_areas_scores_comparison_with_empresa(self, api_client, empresa_id_teste):
+        """Testa comparação de scores filtrada por empresa"""
+        if not empresa_id_teste:
+            pytest.skip("Nenhuma empresa encontrada no banco")
+
+        response = api_client.get(
+            f"/api/v1/analytics/areas/scores-comparison?id_empresa={empresa_id_teste}"
+        )
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "areas" in data
+        assert isinstance(data["areas"], list)
+
+    def test_get_areas_enps_comparison_success(self, api_client):
+        """Testa comparação de eNPS entre áreas"""
+        response = api_client.get("/api/v1/analytics/areas/enps-comparison")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "areas" in data
+        assert isinstance(data["areas"], list)
+        if len(data["areas"]) > 0:
+            area = data["areas"][0]
+            assert "area_id" in area
+            assert "area_nome" in area
+            assert "coordenacao" in area
+            assert "enps_score" in area
+            assert "promotores" in area
+            assert "neutros" in area
+            assert "detratores" in area
+
+    def test_get_areas_enps_comparison_with_empresa(self, api_client, empresa_id_teste):
+        """Testa comparação de eNPS filtrada por empresa"""
+        if not empresa_id_teste:
+            pytest.skip("Nenhuma empresa encontrada no banco")
+
+        response = api_client.get(
+            f"/api/v1/analytics/areas/enps-comparison?id_empresa={empresa_id_teste}"
+        )
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "areas" in data
+        assert isinstance(data["areas"], list)
+
+    def test_get_area_detailed_metrics_success(self, api_client, area_id_teste):
+        """Testa obtenção de métricas detalhadas de uma área"""
+        if not area_id_teste:
+            pytest.skip("Nenhuma área encontrada no banco")
+
+        response = api_client.get(
+            f"/api/v1/analytics/areas/{area_id_teste}/detailed-metrics"
+        )
+        assert response.status_code == 200
+
+        data = response.json()
+        assert "area_info" in data
+        assert "enps" in data
+        assert "scores_comparison" in data
+        
+        # Verificar estrutura area_info
+        area_info = data["area_info"]
+        assert "area_nome" in area_info
+        assert "nome_coordenacao" in area_info
+
+    def test_get_area_detailed_metrics_not_found(self, api_client):
+        """Testa métricas detalhadas para área inexistente - retorna 200 com dados vazios"""
+        fake_id = "00000000-0000-0000-0000-000000000000"
+        response = api_client.get(
+            f"/api/v1/analytics/areas/{fake_id}/detailed-metrics"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "enps" in data
+        assert data["enps"]["total_respostas"] == 0
+
+    def test_get_area_detailed_metrics_invalid_uuid(self, api_client):
+        """Testa métricas detalhadas com UUID inválido"""
+        response = api_client.get(
+            "/api/v1/analytics/areas/invalid-uuid/detailed-metrics"
+        )
+        assert response.status_code == 422
+
+
+class TestAnalyticsEndToEnd:
+    """Testes de fluxo end-to-end de analytics"""
+
+    def test_complete_analytics_flow(self, api_client, empresa_id_teste):
+        """Testa fluxo completo: eNPS → comparação de áreas → métricas detalhadas"""
+        # 1. Obtém eNPS geral
+        response = api_client.get("/api/v1/analytics/enps")
+        assert response.status_code == 200
+        enps_data = response.json()
+        assert "enps_score" in enps_data
+
+        # 2. Compara scores entre áreas
+        response = api_client.get("/api/v1/analytics/areas/scores-comparison")
+        assert response.status_code == 200
+        scores_data = response.json()
+        assert "areas" in scores_data
+        assert isinstance(scores_data["areas"], list)
+
+        # 3. Compara eNPS entre áreas
+        response = api_client.get("/api/v1/analytics/areas/enps-comparison")
+        assert response.status_code == 200
+        enps_comparison_data = response.json()
+        assert "areas" in enps_comparison_data
+        assert isinstance(enps_comparison_data["areas"], list)
+
+        # 4. Se houver áreas, obtém métricas detalhadas da primeira
+        if len(scores_data["areas"]) > 0:
+            area_id = scores_data["areas"][0]["area_id"]
+            response = api_client.get(
+                f"/api/v1/analytics/areas/{area_id}/detailed-metrics"
+            )
+            assert response.status_code == 200
+            detailed_data = response.json()
+            assert "enps" in detailed_data
+            assert "scores_comparison" in detailed_data
+            assert "area_info" in detailed_data
+
+    def test_analytics_with_empresa_filter_flow(self, api_client, empresa_id_teste):
+        """Testa fluxo de analytics filtrado por empresa"""
+        if not empresa_id_teste:
+            pytest.skip("Nenhuma empresa encontrada no banco")
+
+        # 1. eNPS da empresa
+        response = api_client.get(
+            f"/api/v1/analytics/enps?id_empresa={empresa_id_teste}"
+        )
+        assert response.status_code == 200
+
+        # 2. Comparação de scores da empresa
+        response = api_client.get(
+            f"/api/v1/analytics/areas/scores-comparison?id_empresa={empresa_id_teste}"
+        )
+        assert response.status_code == 200
+
+        # 3. Comparação de eNPS da empresa
+        response = api_client.get(
+            f"/api/v1/analytics/areas/enps-comparison?id_empresa={empresa_id_teste}"
+        )
+        assert response.status_code == 200
