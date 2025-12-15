@@ -51,7 +51,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    entrypoint: /app/scripts/entrypoint.sh
+    entrypoint: ["python", "/app/scripts/entrypoint.py"]
     networks:
       - app-network
     logging:

@@ -32,6 +32,9 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy application code
 COPY . .
 
+# Make entrypoint executable
+RUN chmod +x /app/scripts/entrypoint.py
+
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

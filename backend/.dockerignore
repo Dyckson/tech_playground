@@ -145,4 +145,4 @@ data/
 !requirements.txt
 !app/
 !tests/
-!scripts/entrypoint.sh
+!scripts/entrypoint.py
